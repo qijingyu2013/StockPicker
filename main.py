@@ -2,7 +2,10 @@
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+import datetime
 import json
+import time
+
 import requests
 from bs4 import BeautifulSoup
 import bs4
@@ -31,7 +34,7 @@ def getHTMLJson(req, url, params):
 def fillFourYinList(ulist, html):
     soup = BeautifulSoup(html, "html.parser")
     node_xuanguul = soup.find('ul',id='xuanguul')
-
+    timestamp = currentTime()
     for li in node_xuanguul.children:
         # print(li)
         if isinstance(li, bs4.element.Tag):
@@ -52,7 +55,7 @@ def fillFourYinList(ulist, html):
                     # print(span_name)
                     stock_url = li('span')[1].select_one('a[href]').get('href') # 股票 url
                     # print(stock_url)
-                    greenTimes = totalNineYinList(stock_number_c)
+                    greenTimes = totalNineYinList(stock_number_c, timestamp)
                     ulist.append([span_xh, span_name, stock_number_c, greenTimes])
 
 
@@ -65,8 +68,8 @@ def fillFourYinList(ulist, html):
     #         #tds = tr.find_all('td')
     #         ulist.append([tds[0].string, tds[1].string, tds[2].string,tds[3].string])
 
-def totalNineYinList(stock_number_c):
-    data = ball.daily(stock_number_c)['data']
+def totalNineYinList(stock_number_c, begin):
+    data = ball.daily(stock_number_c, begin)['data']
     # print(data['item'])
     greenTimes = 0
     ## 按照当前交易日的开盘价-收盘价 进行计算
@@ -108,6 +111,21 @@ def printUnivList(ulist):
         u = ulist[i]
         if u[3] > 6 :
             print(tplt.format(u[0],u[1],u[2],u[3],chr(12288)))
+
+def currentTime():
+    current = datetime.datetime.now()
+    #打印当前时间
+    print("当前时间 :", current)
+
+    year = datetime.datetime.now().year
+    month = datetime.datetime.now().month
+    day = datetime.datetime.now().day
+    # 雪球网请求是需要把日往后延一天
+    dt = str(year) + '-' + str(month) + '-' + str(day+1) + ' 17:00:00'
+    timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
+    timestamp = time.mktime(timeArray)
+    # print(round(timestamp*1000))
+    return round(timestamp*1000)
 
 def main():
     uinfo = []
