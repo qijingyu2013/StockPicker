@@ -1,7 +1,5 @@
-# This is a sample Python script.
+# 底层逻辑 输出大于7阴的票
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 import datetime
 import json
 import time
