@@ -55,6 +55,8 @@ index_perf = "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=
 # hkex
 hkex_connect = "http://www.hkexnews.hk/sdw/search/mutualmarket.aspx?t="
 
-#kline
+# kline
 kline_list_url = "https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol="
 
+# lists
+lists_url = "https://xueqiu.com/service/v5/stock/screener/quote/list?order=asc&orderby=code&order_by=symbol&market=CN&type=sh_sz"

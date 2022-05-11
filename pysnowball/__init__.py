@@ -33,3 +33,5 @@ from pysnowball.hkex import(
     northbound_shareholding_sh, northbound_shareholding_sz)
 
 from pysnowball.kline import(daily)
+
+from pysnowball.lists import(list)
