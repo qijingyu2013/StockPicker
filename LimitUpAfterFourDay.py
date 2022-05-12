@@ -18,7 +18,7 @@ import pysnowball as ball
 
 # 抓取股票列表
 def fetchStockList(timestamp):
-    list = ball.list(5)
+    list = ball.list(5000)
     # print(list)
     return list
 
