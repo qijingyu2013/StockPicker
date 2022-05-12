@@ -7,7 +7,13 @@ import time
 import requests
 from bs4 import BeautifulSoup
 import bs4
+from sqlalchemy import and_
+
+import models
 import pysnowball as ball
+from StockToDB import fetchStockListFromDB
+from utils import customizeTime, currentTime
+
 
 def getHTMLText(url):
     try:
@@ -17,6 +23,7 @@ def getHTMLText(url):
         return r.text
     except:
         return ""
+
 
 def getHTMLJson(req, url, params):
     try:
@@ -29,33 +36,34 @@ def getHTMLJson(req, url, params):
     except:
         return ""
 
+
 def fillFourYinList(ulist, html):
     soup = BeautifulSoup(html, "html.parser")
-    node_xuanguul = soup.find('ul',id='xuanguul')
+    node_xuanguul = soup.find('ul', id='xuanguul')
     timestamp = currentTime()
     for li in node_xuanguul.children:
         # print(li)
         if isinstance(li, bs4.element.Tag):
-            span_xh = li('span')[0].string #序号 <span class="xh">1</span>
+            span_xh = li('span')[0].string  # 序号 <span class="xh">1</span>
             # print(span_xh)
-            span_name_title = li('span')[1].string #名称
+            span_name_title = li('span')[1].string  # 名称
             # print(span_name_title)
             if li('span')[1].select_one('a[href]'):
                 stock_number = li.get('scode')
                 stock_number_c = ''
-                if int(stock_number) < 680000: # 过滤掉科创板 68+
+                if int(stock_number) < 680000:  # 过滤掉科创板 68+
                     if int(stock_number) < 600000:
                         stock_number_c = 'SZ' + stock_number
                     else:
                         stock_number_c = 'SH' + stock_number
 
-                    span_name = li('span')[1].select_one('a[href]').string #名称 <span class="sname"><a href="/gupiao/002714.html" target="_blank">牧原股份</a>
+                    span_name = li('span')[1].select_one(
+                        'a[href]').string  # 名称 <span class="sname"><a href="/gupiao/002714.html" target="_blank">牧原股份</a>
                     # print(span_name)
-                    stock_url = li('span')[1].select_one('a[href]').get('href') # 股票 url
+                    stock_url = li('span')[1].select_one('a[href]').get('href')  # 股票 url
                     # print(stock_url)
                     greenTimes = totalNineYinList(stock_number_c, timestamp)
                     ulist.append([span_xh, span_name, stock_number_c, greenTimes])
-
 
         # print(li.get_text())
     #     node_span_text = li.find('span',scode_='span').get_text()
@@ -65,6 +73,7 @@ def fillFourYinList(ulist, html):
     #         tds = tr('td') #简写，等价于下一行代码
     #         #tds = tr.find_all('td')
     #         ulist.append([tds[0].string, tds[1].string, tds[2].string,tds[3].string])
+
 
 def totalNineYinList(stock_number_c, begin):
     data = ball.daily(stock_number_c, begin)['data']
@@ -81,14 +90,14 @@ def totalNineYinList(stock_number_c, begin):
     #         return greenTimes
 
     ## 以下算法是根据 上一个交易日的收盘价 && 当前开盘价 && 当前收盘价 进行计数
-    for i in range( len(data['item']), -1, -1):
+    for i in range(len(data['item']), -1, -1):
         if i > 0:
             # print(i)
-            closing_price_prev = data['item'][i-2][5]
+            closing_price_prev = data['item'][i - 2][5]
             # print(closing_price_prev)
-            opening_price_current = data['item'][i-1][2]
+            opening_price_current = data['item'][i - 1][2]
             # print(opening_price_current)
-            closing_price_current = data['item'][i-1][5]
+            closing_price_current = data['item'][i - 1][5]
             # print(closing_price_current)
 
             if closing_price_current < opening_price_current:
@@ -102,35 +111,58 @@ def totalNineYinList(stock_number_c, begin):
                 return greenTimes
     return greenTimes
 
-def printUnivList(ulist):
-    tplt = "{0:^4}\t{1:^8}\t{2:6}\t{3:^4}"
-    print(tplt.format("序号","股票名称","股票代码","连阴次数", chr(12288)))
-    for i in range(len(ulist)):
-        u = ulist[i]
-        if u[3] > 6 :
-            print(tplt.format(u[0],u[1],u[2],u[3],chr(12288)))
 
-def currentTime():
-    current = datetime.datetime.now()
-    #打印当前时间
-    print("当前时间 :", current)
+def printUnivList(ulist, limit):
+    if len(ulist) > 0:
+        tplt = "\r{0:>4}\t{1:<}\t{2:>}\t{3:^}"
+        print(tplt.format("序号", "股票名称", "股票代码", "连阴次数", chr(12288)))
+        for i in range(len(ulist)):
+            u = ulist[i]
+            print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
+    else:
+        print("今天没有连阴"+str(limit)+"的票哦！")
 
-    year = datetime.datetime.now().year
-    month = datetime.datetime.now().month
-    day = datetime.datetime.now().day
-    # 雪球网请求是需要把日往后延一天
-    dt = str(year) + '-' + str(month) + '-' + str(day+1) + ' 17:00:00'
-    timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
-    timestamp = time.mktime(timeArray)
-    # print(round(timestamp*1000))
-    return round(timestamp*1000)
 
-def main():
-    uinfo = []
-    url = 'http://www.tetegu.com/4lianyin/?src=indexgezi'
-    ball.set_token('xq_a_token=727dbbbcb1a3b790f344cdc67f7910d7dfb0e461;')
-    html = getHTMLText(url)
-    fillFourYinList(uinfo, html)
-    printUnivList(uinfo)
+# 取出9天的行情
+# 从最后一天开始累加下跌的次数
+def fetchNineDayData(limit=9):
+    lists = fetchStockListFromDB()
+    ulist = []
+    length_total = len(lists)
+    handle = 0
+    for item in lists:
+        result = models.session.query(
+            models.StockTrade
+        ).filter(
+            and_(
+                models.StockTrade.sid == item[0]
+            )
+        ).order_by(
+            models.StockTrade.timestamp.desc()
+        ).limit(9).all()
+        # print(result)
+        count = 0
+        for trade in result:
+            if trade.open > trade.close:
+                count += 1
+            else:
+                break
+        if count >= limit:
+            ulist.append([trade.name, trade.code, count])
+        handle += 1
+        percent = handle / length_total
+        surplus = round((length_total - handle) * 0.005, 1)
+        print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+    printUnivList(ulist, limit)
+    return ulist
 
-main()
+# def main():
+#     uinfo = []
+#     url = 'http://www.tetegu.com/4lianyin/?src=indexgezi'
+#     ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+#     html = getHTMLText(url)
+#     fillFourYinList(uinfo, html)
+#     printUnivList(uinfo)
+#     # fetchNineDayData()
+#
+# main()

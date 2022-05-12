@@ -109,7 +109,7 @@ def currentTime():
 def main():
     uinfo = []
     url = 'http://www.tetegu.com/4lianyin/?src=indexgezi'
-    ball.set_token('xq_a_token=727dbbbcb1a3b790f344cdc67f7910d7dfb0e461;')
+    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
     html = getHTMLText(url)
     fillFourYinList(uinfo, html)
     printUnivList(uinfo)
