@@ -1,18 +1,14 @@
 # 底层逻辑 输出大于7阴的票
 
-import datetime
-import json
-import time
-
+import bs4
 import requests
 from bs4 import BeautifulSoup
-import bs4
 from sqlalchemy import and_
 
 import models
 import pysnowball as ball
-from StockToDB import fetchStockListFromDB
-from utils import customizeTime, currentTime
+from StockToDB import fetchStockListFromDB, StockType, saveStockMission
+from utils import currentTime, zeroTime
 
 
 def getHTMLText(url):
@@ -118,41 +114,56 @@ def printUnivList(ulist, limit):
         print(tplt.format("序号", "股票名称", "股票代码", "连阴次数", chr(12288)))
         for i in range(len(ulist)):
             u = ulist[i]
-            print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
+            if u[2] >= limit:
+                print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
     else:
-        print("\r今天没有连阴"+str(limit)+"的票哦！")
+        print("\r今天没有连阴" + str(limit) + "的票哦！")
 
 
 # 取出9天的行情
 # 从最后一天开始累加下跌的次数
 def fetchNineDayData(limit=9):
-    lists = fetchStockListFromDB()
     ulist = []
-    length_total = len(lists)
-    handle = 0
-    for item in lists:
-        result = models.session.query(
-            models.StockTrade
-        ).filter(
-            and_(
-                models.StockTrade.sid == item[0]
-            )
-        ).order_by(
-            models.StockTrade.timestamp.desc()
-        ).limit(9).all()
-        # print(result)
-        count = 0
-        for trade in result:
-            if trade.open > trade.close:
-                count += 1
-            else:
-                break
-        if count >= limit:
-            ulist.append([trade.name, trade.code, count])
-        handle += 1
-        percent = handle / length_total
-        surplus = round((length_total - handle) * 0.005, 1)
-        print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+    zero = zeroTime()
+    mission = models.session.query(
+        models.StockMission
+    ).filter(
+        and_(
+            models.StockMission.timestamp == zero
+        )
+    ).one_or_none()
+
+    if mission is None:
+        lists = fetchStockListFromDB(StockType.HuShen, False)
+        length_total = len(lists)
+        handle = 0
+        for item in lists:
+            result = models.session.query(
+                models.StockTrade
+            ).filter(
+                and_(
+                    models.StockTrade.sid == item[0]
+                )
+            ).order_by(
+                models.StockTrade.timestamp.desc()
+            ).limit(9).all()
+            # print(result)
+            count = 0
+            for trade in result:
+                if trade.open > trade.close:
+                    count += 1
+                else:
+                    break
+            if count >= 4:
+                ulist.append([trade.name, trade.code, count])
+            handle += 1
+            percent = handle / length_total
+            surplus = round((length_total - handle) * 0.005, 1)
+            print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+        saveStockMission(zero, 1, str(ulist))
+    else:
+        ulist = eval(mission.content)
+
     printUnivList(ulist, limit)
     return ulist
 

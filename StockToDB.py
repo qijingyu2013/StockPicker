@@ -13,8 +13,8 @@ from enum import Enum
 
 from sqlalchemy import and_
 
-import pysnowball as ball
 import models
+import pysnowball as ball
 
 
 # 抓取股票列表
@@ -69,7 +69,7 @@ class StockType(Enum):
 
 
 # 从数据库里拿出股票列表
-def fetchStockListFromDB(type=StockType.HuShenChuang):
+def fetchStockListFromDB(type=StockType.HuShen, st=True):
     try:
         # 深
         sz = models.session.query(
@@ -79,7 +79,8 @@ def fetchStockListFromDB(type=StockType.HuShenChuang):
             models.StockList.name
         ).filter(
             and_(
-                models.StockList.code < 200000
+                models.StockList.code < 200000,
+                models.StockList.status.in_((0, 1 if st else 0))
             )
         ).all()
         # 创业板
@@ -91,7 +92,8 @@ def fetchStockListFromDB(type=StockType.HuShenChuang):
         ).filter(
             and_(
                 models.StockList.code >= 300000,
-                models.StockList.code < 400000
+                models.StockList.code < 400000,
+                models.StockList.status.in_((0, 1 if st else 0))
             )
         ).all()
         # 沪
@@ -103,7 +105,8 @@ def fetchStockListFromDB(type=StockType.HuShenChuang):
         ).filter(
             and_(
                 models.StockList.code >= 600000,
-                models.StockList.code < 688000
+                models.StockList.code < 688000,
+                models.StockList.status.in_((0, 1 if st else 0))
             )
         ).all()
 
@@ -185,7 +188,7 @@ def saveStockTrade(stock_id, stock_code, stock_name, data):
 
 # 更新股票行情
 def upgradeStockTrade(timestamp):
-    lists = fetchStockListFromDB()
+    lists = fetchStockListFromDB(StockType.HuShenChuang)
     length_total = len(lists)
     handle = 0
     # 取出5天的行情信息
@@ -266,6 +269,19 @@ def fetchStockInfo(ulist, data, timestamp):
     return ulist
 
 
+# 保存执行任务
+def saveStockMission(timestamp, type, ulist):
+    stock_mission_instance = models.StockMission(
+        timestamp=timestamp,  # 时间戳
+        type=type,  # 任务类型 1=9阴 2=涨停后4天不破位
+        content=ulist,  # 执行结果
+    )
+    models.session.add(stock_mission_instance)
+    # 提交
+    models.session.commit()
+    return
+
+
 def printUnivList(ulist):
     tplt = "\r{0:^4}\t{1:^8}\t{2:8}"
     print(tplt.format("序号", "股票名称", "股票代码", chr(12288)))
@@ -288,7 +304,6 @@ def currentTime():
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
-
 
 # def main():
 #     print('###初始化执行任务')

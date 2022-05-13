@@ -1,4 +1,5 @@
 import pysnowball as ball
+from NineYin import fetchNineDayData
 from StockToDB import upgradeStockList, upgradeStockTrade
 from utils import currentTime
 
@@ -12,6 +13,7 @@ def main():
     timestamp = currentTime()
     upgradeStockList(timestamp)
     upgradeStockTrade(timestamp)
+    fetchNineDayData()
 
 
 main()
