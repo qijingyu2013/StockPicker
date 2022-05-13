@@ -131,14 +131,24 @@ def saveStockTrade(stock_id, stock_code, stock_name, data):
     for item in data:
         try:
             result = models.session.query(
-                models.StockTrade.id
+                models.StockTrade
             ).filter(
                 and_(
                     models.StockTrade.sid == stock_id,
                     models.StockTrade.timestamp == item[0]
                 )
-            ).all()
-            if len(result) < 1:
+            ).one_or_none()
+            if result is not None:
+                result.volume = item[1]
+                result.open = item[2],  # 开盘价
+                result.high = item[3],  # 最高价
+                result.low = item[4],  # 最低价
+                result.close = item[5],  # 收盘价
+                result.chg = item[6],  # 涨跌幅
+                result.percent = item[7],  # 涨跌幅%
+                result.turn_over_rate = item[8],  # 换手率%
+                result.amount = item[9],  # 成交额
+            else:
                 # 涨停价&跌停价
                 if stock_code[0:1] == '3':
                     limit_up_price = round((item[5] - item[6]) * 1.2, 2)
@@ -146,7 +156,6 @@ def saveStockTrade(stock_id, stock_code, stock_name, data):
                 else:
                     limit_up_price = round((item[5] - item[6]) * 1.1, 2)
                     limit_down_price = round((item[5] - item[6]) * 0.9, 2)
-
                 stock_trade_instance = models.StockTrade(
                     sid=stock_id,  # stock_list的主键
                     code=stock_code,  # 股票代码
@@ -165,8 +174,8 @@ def saveStockTrade(stock_id, stock_code, stock_name, data):
                     limit_down=limit_down_price,  # 跌停价
                 )
                 models.session.add(stock_trade_instance)
-                # 提交
-                models.session.commit()
+            # 提交
+            models.session.commit()
         except IndexError as e:
             print("this is a IndexError:", e)
         except KeyError as e:
@@ -279,6 +288,7 @@ def currentTime():
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
+
 
 # def main():
 #     print('###初始化执行任务')
