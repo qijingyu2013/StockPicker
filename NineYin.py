@@ -120,7 +120,7 @@ def printUnivList(ulist, limit):
             u = ulist[i]
             print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
     else:
-        print("今天没有连阴"+str(limit)+"的票哦！")
+        print("\r今天没有连阴"+str(limit)+"的票哦！")
 
 
 # 取出9天的行情

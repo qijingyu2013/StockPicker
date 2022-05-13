@@ -182,7 +182,7 @@ def upgradeStockTrade(timestamp):
     # 取出5天的行情信息
     for item in lists:
         try:
-            data_five = ball.daily(item[1] + item[2], timestamp, -30)['data']['item']
+            data_five = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
             # 保存5天的行情信息
             saveStockTrade(item[0], item[2], item[3], data_five)
         except KeyError as e:
