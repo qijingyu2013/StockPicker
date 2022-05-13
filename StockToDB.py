@@ -248,10 +248,10 @@ def fetchStockInfo(ulist, data, timestamp):
         except KeyError as e:
             print("this is a KeyError:", e)
 
-        time.sleep(0.1)
+        # time.sleep(0.1)
         handle += 1
         percent = handle / length_total
-        surplus = round((length_total - handle) * 0.15, 1)
+        surplus = round((length_total - handle) * 0.05, 1)
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
         # print("\r 完成度为%f%, 还剩余%f秒。" %percent %surplus, end='', flush=True)
     return ulist

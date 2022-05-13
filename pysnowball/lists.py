@@ -7,6 +7,6 @@ def list(size=5000, begin=1652024902313):
     url = url + '&page=1'
     url = url + '&size='+str(size)
     url = url + '&_='+str(begin)
-    print(url)
+    # print(url)
 
     return utls.fetch(url, 'xueqiu.com')
