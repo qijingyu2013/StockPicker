@@ -85,11 +85,11 @@ def printUnivList(ulist):
         print("今天没有符合规则的票哦！")
 
 
-def main():
-    uinfo = []
-    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
-    # timestamp = currentTime()
-    fetchLimitUpAfterFourDay()
-
-
-main()
+# def main():
+#     uinfo = []
+#     ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+#     # timestamp = currentTime()
+#     fetchLimitUpAfterFourDay()
+#
+#
+# main()
