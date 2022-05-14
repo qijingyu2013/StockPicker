@@ -129,7 +129,8 @@ def fetchNineDayData(limit=9):
         models.StockMission
     ).filter(
         and_(
-            models.StockMission.timestamp == zero
+            models.StockMission.timestamp == zero,
+            models.StockMission.type == 1
         )
     ).one_or_none()
 
