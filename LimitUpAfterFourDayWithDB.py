@@ -81,6 +81,7 @@ def printUnivList(ulist):
         for i in range(len(ulist)):
             u = ulist[i]
             print(tplt.format(i, u[0], u[1], chr(12288)))
+        print('\r获取满足5天前涨停后4天不破位的票,已完成！')
     else:
         print("今天没有符合规则的票哦！")
 

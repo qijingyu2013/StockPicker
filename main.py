@@ -3,6 +3,7 @@
 import pysnowball as ball
 from LimitUpAfterFourDayWithDB import fetchLimitUpAfterFourDay
 from NineYin import fetchNineDayData
+from Shareholder import topTenHolders, allHolders
 from StockToDB import upgradeStockList, upgradeStockTrade
 from utils import currentTime
 
@@ -14,6 +15,7 @@ def main():
     print('[3] 全量更新')
     print('[4] 获取连阴票')
     print('[5] 获取满足5天前涨停后4天不破位的票')
+    print('[6] 获取股票股东信息')
     print('根据编号选择任务:')
     s = int(input())
     ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
@@ -40,7 +42,19 @@ def main():
             fetchNineDayData(count)
     elif s == 5:
         fetchLimitUpAfterFourDay()
-        print('\r获取满足5天前涨停后4天不破位的票,已完成！')
+    elif s == 6:
+        print('[1] 前十股东信息:')
+        print('[2] 全部股东信息:')
+        print('根据编号选择任务:')
+        t = int(input())
+        print('请输入股票编码(带上大写SZ或者SH):')
+        code = str(input())
+        if t == 1:
+            topTenHolders(code)
+        elif t == 2:
+            allHolders(code)
+        else:
+            topTenHolders(code)
     else:
         print('输入错误。。。')
 
