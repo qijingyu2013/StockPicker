@@ -15,10 +15,10 @@ from StockToDB import fetchStockListFromDB, StockType, saveStockMission
 import pysnowball as ball
 from utils import currentTime, zeroTime
 
+
 # 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)
-
-
-def fetchLimitUpAfterFourDay():
+# 3天涨幅不超过10%，跌幅不超过5%，每天换手率10
+def fetchLimitUpAfterThreeDay():
     ulist = []
     zero = zeroTime()
     mission = models.session.query(
@@ -26,7 +26,7 @@ def fetchLimitUpAfterFourDay():
     ).filter(
         and_(
             models.StockMission.timestamp == zero,
-            models.StockMission.type == 2
+            models.StockMission.type == 1
         )
     ).one_or_none()
     if mission is None:
@@ -42,24 +42,29 @@ def fetchLimitUpAfterFourDay():
                 )
             ).order_by(
                 models.StockTrade.timestamp.desc()
-            ).limit(5).all()
+            ).limit(4).all()
             try:
                 # 筛选出第一天涨停的票
-                if len(result) == 5:
-                    if result[4].close == result[4].limit_up:
+                if len(result) == 4:
+                    if result[3].close == result[3].limit_up:
                         count = 0
-                        for i in range(3, -1, -1):
-                            if result[4].open < result[i].close:
+                        for i in range(2, -1, -1):
+                            if result[3].open < result[i].close:
                                 count += 1
                             else:
                                 break
                             if result[i].turn_over_rate <= 10:
                                 break
-                        if count == 4:
+                        if count == 3:
                             # 第一天的收盘价 和 最后一天的收盘价 幅度不超过5%
-                            if (abs(result[0].close - result[4].close)) / result[4].close <= 5:
-                                ulist.append([result[4].name, result[4].code])
-
+                            difference = result[0].close - result[3].close
+                            abs_difference = difference / result[3].close
+                            if abs_difference < -0.05:
+                                break
+                            elif abs_difference > 0.1:
+                                break
+                            else:
+                                ulist.append([result[3].name, result[3].code])
             except IndexError as e:
                 print("this is a IndexError:", e)
                 print(result)
@@ -67,7 +72,7 @@ def fetchLimitUpAfterFourDay():
             percent = handle / length_total
             surplus = round((length_total - handle) * 0.005, 1)
             print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
-        saveStockMission(zero, 2, str(ulist))
+        saveStockMission(zero, 1, str(ulist))
     else:
         ulist = eval(mission.content)
     printUnivList(ulist)
@@ -81,7 +86,7 @@ def printUnivList(ulist):
         for i in range(len(ulist)):
             u = ulist[i]
             print(tplt.format(i, u[0], u[1], chr(12288)))
-        print('\r获取满足5天前涨停后4天不破位的票,已完成！')
+        print('\r获取满足4天前涨停后3天不破位的票,已完成！')
     else:
         print("今天没有符合规则的票哦！")
 
@@ -90,7 +95,7 @@ def printUnivList(ulist):
 #     uinfo = []
 #     ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
 #     # timestamp = currentTime()
-#     fetchLimitUpAfterFourDay()
+#     fetchLimitUpAfterThreeDay()
 #
 #
 # main()

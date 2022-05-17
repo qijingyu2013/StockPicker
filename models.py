@@ -94,11 +94,62 @@ class StockMission(Base):
     # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
     id = Column(Integer, primary_key=True, autoincrement=True, comment="主键")
     timestamp = Column(BigInteger, nullable=True, comment="时间戳")  # 时间戳
-    type = Column(Integer, comment="任务类型 1=9阴 2=涨停后4天不破位")
+    type = Column(Integer, comment="任务类型 1=涨停后4天不破位 2=9日阴 3=9周阴 4=9月阴")
     content = Column(Text, nullable=True, comment="执行结果")
     delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
     create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
     update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
+
+
+class StockTradeWeekly(Base):
+    # """ 必须继承Base """
+    # 数据库中存储的表名
+    __tablename__ = "stock_trade_weekly"
+    # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
+    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="主键")
+    sid = Column(Integer, comment="stock_list的主键")
+    name = Column(String(10), index=True, nullable=False, comment="股票名称")
+    code = Column(String(8), nullable=True, comment="股票代码")
+    timestamp = Column(BigInteger, nullable=True, comment="交易日时间戳")
+    volume = Column(Integer, nullable=True, comment="成交量(手)")
+    open = Column(Float, nullable=True, comment="开盘价")
+    high = Column(Float, nullable=True, comment="最高价")
+    low = Column(Float, nullable=True, comment="最低价")
+    close = Column(Float, nullable=True, comment="收盘价")
+    chg = Column(Float, nullable=True, comment="涨跌幅")
+    percent = Column(Float, nullable=True, comment="涨跌幅%")
+    turn_over_rate = Column(Float, nullable=True, comment="换手率%")
+    amount = Column(Float, nullable=True, comment="成交额")
+    status = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ，  其他1")
+    delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
+    create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
+    update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
+
+
+class StockTradeMonthly(Base):
+    # """ 必须继承Base """
+    # 数据库中存储的表名
+    __tablename__ = "stock_trade_monthly"
+    # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
+    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="主键")
+    sid = Column(Integer, comment="stock_list的主键")
+    name = Column(String(10), index=True, nullable=False, comment="股票名称")
+    code = Column(String(8), nullable=True, comment="股票代码")
+    timestamp = Column(BigInteger, nullable=True, comment="交易日时间戳")
+    volume = Column(Integer, nullable=True, comment="成交量(手)")
+    open = Column(Float, nullable=True, comment="开盘价")
+    high = Column(Float, nullable=True, comment="最高价")
+    low = Column(Float, nullable=True, comment="最低价")
+    close = Column(Float, nullable=True, comment="收盘价")
+    chg = Column(Float, nullable=True, comment="涨跌幅")
+    percent = Column(Float, nullable=True, comment="涨跌幅%")
+    turn_over_rate = Column(Float, nullable=True, comment="换手率%")
+    amount = Column(Float, nullable=True, comment="成交额")
+    status = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ，  其他1")
+    delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
+    create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
+    update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
+
 
 __table__args__ = (
     UniqueConstraint("name", "code", "flag"),  # 联合唯一约束

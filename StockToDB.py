@@ -129,9 +129,22 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
     return result
 
 
+def updateResult(result, item):
+    result.volume = item[1]
+    result.open = item[2],  # 开盘价
+    result.high = item[3],  # 最高价
+    result.low = item[4],  # 最低价
+    result.close = item[5],  # 收盘价
+    result.chg = item[6],  # 涨跌幅
+    result.percent = item[7],  # 涨跌幅%
+    result.turn_over_rate = item[8],  # 换手率%
+    result.amount = item[9],  # 成交额
+    return result
+
+
 # 保存行情信息
-def saveStockTrade(stock_id, stock_code, stock_name, data):
-    for item in data:
+def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
+    for item in data_daily:
         try:
             result = models.session.query(
                 models.StockTrade
@@ -142,15 +155,7 @@ def saveStockTrade(stock_id, stock_code, stock_name, data):
                 )
             ).one_or_none()
             if result is not None:
-                result.volume = item[1]
-                result.open = item[2],  # 开盘价
-                result.high = item[3],  # 最高价
-                result.low = item[4],  # 最低价
-                result.close = item[5],  # 收盘价
-                result.chg = item[6],  # 涨跌幅
-                result.percent = item[7],  # 涨跌幅%
-                result.turn_over_rate = item[8],  # 换手率%
-                result.amount = item[9],  # 成交额
+                updateResult(result, item)
             else:
                 # 涨停价&跌停价
                 if stock_code[0:1] == '3':
@@ -186,17 +191,127 @@ def saveStockTrade(stock_id, stock_code, stock_name, data):
     return
 
 
+# 保存行情信息
+def saveStockTradeWeekly(stock_id, stock_code, stock_name, data_weekly):
+    for item in data_weekly:
+        try:
+            result = models.session.query(
+                models.StockTradeWeekly
+            ).filter(
+                and_(
+                    models.StockTradeWeekly.sid == stock_id,
+                    models.StockTradeWeekly.timestamp == item[0]
+                )
+            ).one_or_none()
+            if result is not None:
+                updateResult(result, item)
+            else:
+                stock_trade_instance = models.StockTradeWeekly(
+                    sid=stock_id,  # stock_list的主键
+                    code=stock_code,  # 股票代码
+                    name=stock_name,  # 股票名称
+                    timestamp=item[0],  # 交易日时间戳
+                    volume=item[1],  # 成交量(手)
+                    open=item[2],  # 开盘价
+                    high=item[3],  # 最高价
+                    low=item[4],  # 最低价
+                    close=item[5],  # 收盘价
+                    chg=item[6],  # 涨跌幅
+                    percent=item[7],  # 涨跌幅%
+                    turn_over_rate=item[8],  # 换手率%
+                    amount=item[9],  # 成交额
+                )
+                models.session.add(stock_trade_instance)
+            # 提交
+            models.session.commit()
+        except IndexError as e:
+            print("this is a IndexError:", e)
+        except KeyError as e:
+            print("this is a KeyError:", e)
+    return
+
+
+# 保存行情信息
+def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
+    for item in data_monthly:
+        try:
+            result = models.session.query(
+                models.StockTradeMonthly
+            ).filter(
+                and_(
+                    models.StockTradeMonthly.sid == stock_id,
+                    models.StockTradeMonthly.timestamp == item[0]
+                )
+            ).one_or_none()
+            if result is not None:
+                updateResult(result, item)
+            else:
+                stock_trade_instance = models.StockTradeMonthly(
+                    sid=stock_id,  # stock_list的主键
+                    code=stock_code,  # 股票代码
+                    name=stock_name,  # 股票名称
+                    timestamp=item[0],  # 交易日时间戳
+                    volume=item[1],  # 成交量(手)
+                    open=item[2],  # 开盘价
+                    high=item[3],  # 最高价
+                    low=item[4],  # 最低价
+                    close=item[5],  # 收盘价
+                    chg=item[6],  # 涨跌幅
+                    percent=item[7],  # 涨跌幅%
+                    turn_over_rate=item[8],  # 换手率%
+                    amount=item[9],  # 成交额
+                )
+                models.session.add(stock_trade_instance)
+            # 提交
+            models.session.commit()
+        except IndexError as e:
+            print("this is a IndexError:", e)
+        except KeyError as e:
+            print("this is a KeyError:", e)
+    return
+
+
 # 更新股票行情
-def upgradeStockTrade(timestamp):
+def upgradeStockTrade(timestamp, period='all'):
     lists = fetchStockListFromDB(StockType.HuShenChuang)
     length_total = len(lists)
     handle = 0
-    # 取出5天的行情信息
+    # 保存行情信息
     for item in lists:
         try:
-            data_five = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
-            # 保存5天的行情信息
-            saveStockTrade(item[0], item[2], item[3], data_five)
+            if period == 'daily':
+                # 抓取日行情
+                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
+                saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+            elif period == 'weekly':
+                # 抓取周行情
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -10)['data']['item']
+                # 剔除本周数据
+                data_weekly.pop()
+                # 保存行情信息
+                saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
+            elif period == 'monthly':
+                # 抓取月行情
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -10)['data']['item']
+                # 剔除本月数据
+                data_monthly.pop()
+                # 保存行情信息
+                saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
+            else:
+                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
+                saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+                # 抓取周行情
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -10)['data']['item']
+                # 剔除本周数据
+                data_weekly.pop()
+                # 保存行情信息
+                saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
+                # 抓取月行情
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -10)['data']['item']
+                # 剔除本月数据
+                data_monthly.pop()
+                # 保存行情信息
+                saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
         except KeyError as e:
             print("\rthis is a KeyError:", e)
             print(item[0], item[2], item[3])
@@ -305,7 +420,11 @@ def currentTime():
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
 
-# def main():
+
+def main():
+    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+    timestamp = currentTime()
+    upgradeStockTrade(timestamp)
 #     print('###初始化执行任务')
 #     print('[1] 保存并且更新股票信息')
 #     print('[2] 保存并且更新股票行情')

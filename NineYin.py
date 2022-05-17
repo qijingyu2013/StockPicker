@@ -108,29 +108,90 @@ def totalNineYinList(stock_number_c, begin):
     return greenTimes
 
 
-def printUnivList(ulist, limit):
-    if len(ulist) > 0:
-        tplt = "\r{0:>4}\t{1:<}\t{2:>}\t{3:^}"
-        print(tplt.format("序号", "股票名称", "股票代码", "连阴次数", chr(12288)))
-        for i in range(len(ulist)):
-            u = ulist[i]
+def printUnivList(lists, limit, period):
+    lists_len = len(lists)
+    tplt = "\r{0:>4}\t{1:<}\t{2:>}\t{3:^}"
+    if lists_len > 0:
+        if period == 'daily':
+            print(tplt.format("序号", "股票名称", "股票代码", "连日阴次数", chr(12288)))
+        elif period == 'weekly':
+            print(tplt.format("序号", "股票名称", "股票代码", "连周阴次数", chr(12288)))
+        elif period == 'monthly':
+            print(tplt.format("序号", "股票名称", "股票代码", "连月阴次数", chr(12288)))
+
+        for i in range(lists_len):
+            u = lists[i]
             if u[2] >= limit:
                 print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
     else:
-        print("\r今天没有连阴" + str(limit) + "的票哦！")
+        if period == 'daily':
+            print("\r今天没有连日阴" + str(limit) + "的票哦！")
+        elif period == 'weekly':
+            print("\r今天没有连周阴" + str(limit) + "的票哦！")
+        elif period == 'monthly':
+            print("\r今天没有连月阴" + str(limit) + "的票哦！")
 
 
 # 取出9天的行情
 # 从最后一天开始累加下跌的次数
-def fetchNineDayData(limit=9):
-    ulist = []
+# def fetchNineDayData(limit=9):
+#     ulist = []
+#     zero = zeroTime()
+#     mission = models.session.query(
+#         models.StockMission
+#     ).filter(
+#         and_(
+#             models.StockMission.timestamp == zero,
+#             models.StockMission.type == 1
+#         )
+#     ).one_or_none()
+#
+#     if mission is None:
+#         lists = fetchStockListFromDB(StockType.HuShen, False)
+#         length_total = len(lists)
+#         handle = 0
+#         for item in lists:
+#             result = models.session.query(
+#                 models.StockTrade
+#             ).filter(
+#                 and_(
+#                     models.StockTrade.sid == item[0]
+#                 )
+#             ).order_by(
+#                 models.StockTrade.timestamp.desc()
+#             ).limit(9).all()
+#             # print(result)
+#             count = 0
+#             for trade in result:
+#                 if trade.open > trade.close:
+#                     count += 1
+#                 else:
+#                     break
+#             if count >= 4:
+#                 ulist.append([trade.name, trade.code, count])
+#             handle += 1
+#             percent = handle / length_total
+#             surplus = round((length_total - handle) * 0.005, 1)
+#             print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+#         saveStockMission(zero, 1, str(ulist))
+#     else:
+#         ulist = eval(mission.content)
+#
+#     printUnivList(ulist, limit)
+#     return ulist
+
+
+# 取出9个周期的行情
+
+def nineDailyData(limit=9):
+    daily_list = []
     zero = zeroTime()
     mission = models.session.query(
         models.StockMission
     ).filter(
         and_(
             models.StockMission.timestamp == zero,
-            models.StockMission.type == 1
+            models.StockMission.type == 2
         )
     ).one_or_none()
 
@@ -139,34 +200,140 @@ def fetchNineDayData(limit=9):
         length_total = len(lists)
         handle = 0
         for item in lists:
-            result = models.session.query(
-                models.StockTrade
-            ).filter(
-                and_(
-                    models.StockTrade.sid == item[0]
-                )
-            ).order_by(
-                models.StockTrade.timestamp.desc()
-            ).limit(9).all()
-            # print(result)
+            result_daily = fetchNinePeriodData(item[0], 'daily')
             count = 0
-            for trade in result:
+            for trade in result_daily:
                 if trade.open > trade.close:
                     count += 1
                 else:
                     break
             if count >= 4:
-                ulist.append([trade.name, trade.code, count])
+                daily_list.append([trade.name, trade.code, count])
+
             handle += 1
             percent = handle / length_total
             surplus = round((length_total - handle) * 0.005, 1)
             print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
-        saveStockMission(zero, 1, str(ulist))
-    else:
-        ulist = eval(mission.content)
 
-    printUnivList(ulist, limit)
-    return ulist
+        saveStockMission(zero, 2, str(daily_list))
+    else:
+        daily_list = eval(mission.content)
+
+    printUnivList(daily_list, limit, 'daily')
+    return daily_list
+
+
+def nineWeeklyData(limit=9):
+    weekly_list = []
+    zero = zeroTime()
+    mission = models.session.query(
+        models.StockMission
+    ).filter(
+        and_(
+            models.StockMission.timestamp == zero,
+            models.StockMission.type == 3
+        )
+    ).one_or_none()
+
+    if mission is None:
+        lists = fetchStockListFromDB(StockType.HuShen, False)
+        length_total = len(lists)
+        handle = 0
+        for item in lists:
+            result_weekly = fetchNinePeriodData(item[0], 'weekly')
+            count = 0
+            for trade in result_weekly:
+                if trade.open > trade.close:
+                    count += 1
+                else:
+                    break
+            if count >= 4:
+                weekly_list.append([trade.name, trade.code, count])
+
+            handle += 1
+            percent = handle / length_total
+            surplus = round((length_total - handle) * 0.005, 1)
+            print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+
+        saveStockMission(zero, 3, str(weekly_list))
+    else:
+        weekly_list = eval(mission.content)
+
+    printUnivList(weekly_list, limit, 'monthly')
+    return weekly_list
+
+
+def nineMonthlyData(limit=9):
+    monthly_list = []
+    zero = zeroTime()
+    mission = models.session.query(
+        models.StockMission
+    ).filter(
+        and_(
+            models.StockMission.timestamp == zero,
+            models.StockMission.type == 4
+        )
+    ).one_or_none()
+
+    if mission is None:
+        lists = fetchStockListFromDB(StockType.HuShen, False)
+        length_total = len(lists)
+        handle = 0
+        for item in lists:
+            result_monthly = fetchNinePeriodData(item[0], 'monthly')
+            count = 0
+            for trade in result_monthly:
+                if trade.open > trade.close:
+                    count += 1
+                else:
+                    break
+            if count >= 4:
+                monthly_list.append([trade.name, trade.code, count])
+
+            handle += 1
+            percent = handle / length_total
+            surplus = round((length_total - handle) * 0.005, 1)
+            print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+
+        saveStockMission(zero, 4, str(monthly_list))
+    else:
+        monthly_list = eval(mission.content)
+
+    printUnivList(monthly_list, limit, 'monthly')
+    return monthly_list
+
+
+def fetchNinePeriodData(sid, period):
+    if period == 'daily':
+        return models.session.query(
+            models.StockTrade
+        ).filter(
+            and_(
+                models.StockTrade.sid == sid
+            )
+        ).order_by(
+            models.StockTrade.timestamp.desc()
+        ).limit(9).all()
+    elif period == 'weekly':
+        return models.session.query(
+            models.StockTradeWeekly
+        ).filter(
+            and_(
+                models.StockTradeWeekly.sid == sid
+            )
+        ).order_by(
+            models.StockTradeWeekly.timestamp.desc()
+        ).limit(9).all()
+    elif period == 'monthly':
+        return models.session.query(
+            models.StockTradeMonthly
+        ).filter(
+            and_(
+                models.StockTradeMonthly.sid == sid
+            )
+        ).order_by(
+            models.StockTradeMonthly.timestamp.desc()
+        ).limit(9).all()
 
 # def main():
 #     uinfo = []
