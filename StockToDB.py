@@ -92,7 +92,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 models.StockList.code >= 300000,
-                models.StockList.code < 400000,
+                models.StockList.code < 310000,
                 models.StockList.status.in_((0, 1 if st else 0))
             )
         ).all()
@@ -285,14 +285,14 @@ def upgradeStockTrade(timestamp, period='all'):
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
             elif period == 'weekly':
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -10)['data']['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -2)['data']['item']
                 # 剔除本周数据
                 data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
             elif period == 'monthly':
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -10)['data']['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -2)['data']['item']
                 # 剔除本月数据
                 data_monthly.pop()
                 # 保存行情信息
@@ -301,13 +301,13 @@ def upgradeStockTrade(timestamp, period='all'):
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -10)['data']['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -2)['data']['item']
                 # 剔除本周数据
                 data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -10)['data']['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -2)['data']['item']
                 # 剔除本月数据
                 data_monthly.pop()
                 # 保存行情信息
@@ -331,14 +331,14 @@ def fetchStockInfo(ulist, data, timestamp):
     length_total = len(lists)
     handle = 0
     for item in lists:
-        # 沪深标识位
-        item['symbol'][0:2]
-        # 股票代码
-        item['symbol'][-6:]
-        # 股票名称
-        item['name']
-        # 当天价格
-        item['current']
+        # # 沪深标识位
+        # item['symbol'][0:2]
+        # # 股票代码
+        # item['symbol'][-6:]
+        # # 股票名称
+        # item['name']
+        # # 当天价格
+        # item['current']
         try:
             # 5天行情
             data_five = ball.daily(item['symbol'], timestamp, -5)['data']
@@ -395,14 +395,6 @@ def saveStockMission(timestamp, type, ulist):
     # 提交
     models.session.commit()
     return
-
-
-def printUnivList(ulist):
-    tplt = "\r{0:^4}\t{1:^8}\t{2:8}"
-    print(tplt.format("序号", "股票名称", "股票代码", chr(12288)))
-    for i in range(len(ulist)):
-        u = ulist[i]
-        print(tplt.format(i, u[0], u[1], chr(12288)))
 
 
 def currentTime():

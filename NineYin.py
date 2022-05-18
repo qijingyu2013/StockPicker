@@ -110,19 +110,19 @@ def totalNineYinList(stock_number_c, begin):
 
 def printUnivList(lists, limit, period):
     lists_len = len(lists)
-    tplt = "\r{0:>4}\t{1:<}\t{2:>}\t{3:^}"
+    template = "\r{0:>4}\t{1:<}\t{2:>}\t{3:^}"
     if lists_len > 0:
         if period == 'daily':
-            print(tplt.format("序号", "股票名称", "股票代码", "连日阴次数", chr(12288)))
+            print(template.format("序号", "股票名称", "股票代码", "连日阴次数", chr(12288)))
         elif period == 'weekly':
-            print(tplt.format("序号", "股票名称", "股票代码", "连周阴次数", chr(12288)))
+            print(template.format("序号", "股票名称", "股票代码", "连周阴次数", chr(12288)))
         elif period == 'monthly':
-            print(tplt.format("序号", "股票名称", "股票代码", "连月阴次数", chr(12288)))
+            print(template.format("序号", "股票名称", "股票代码", "连月阴次数", chr(12288)))
 
         for i in range(lists_len):
             u = lists[i]
             if u[2] >= limit:
-                print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
+                print(template.format(i+1, u[0], u[1], u[2], chr(12288)))
     else:
         if period == 'daily':
             print("\r今天没有连日阴" + str(limit) + "的票哦！")
@@ -207,7 +207,7 @@ def nineDailyData(limit=9):
                     count += 1
                 else:
                     break
-            if count >= 4:
+            if count >= 7:
                 daily_list.append([trade.name, trade.code, count])
 
             handle += 1
@@ -223,7 +223,7 @@ def nineDailyData(limit=9):
     return daily_list
 
 
-def nineWeeklyData(limit=9):
+def nineWeeklyData(limit=10):
     weekly_list = []
     zero = zeroTime()
     mission = models.session.query(
@@ -241,14 +241,18 @@ def nineWeeklyData(limit=9):
         handle = 0
         for item in lists:
             result_weekly = fetchNinePeriodData(item[0], 'weekly')
-            count = 0
-            for trade in result_weekly:
-                if trade.open > trade.close:
-                    count += 1
-                else:
-                    break
-            if count >= 4:
-                weekly_list.append([trade.name, trade.code, count])
+            if len(result_weekly) == 10:
+                count = 0
+                for trade in result_weekly:
+                    if trade.open > trade.close:
+                        count += 1
+                    else:
+                        break
+                if count >= 7:
+                    if result_weekly[0].turn_over_rate > 20:
+                        weekly_list.append([result_weekly[0].name, result_weekly[0].code, count])
+                    # else:
+                    #     print(result_weekly[0].name, result_weekly[0].code, count, result_weekly[0].turn_over_rate)
 
             handle += 1
             percent = handle / length_total
@@ -259,11 +263,11 @@ def nineWeeklyData(limit=9):
     else:
         weekly_list = eval(mission.content)
 
-    printUnivList(weekly_list, limit, 'monthly')
+    printUnivList(weekly_list, limit, 'weeklyly')
     return weekly_list
 
 
-def nineMonthlyData(limit=9):
+def nineMonthlyData(limit=11):
     monthly_list = []
     zero = zeroTime()
     mission = models.session.query(
@@ -281,14 +285,18 @@ def nineMonthlyData(limit=9):
         handle = 0
         for item in lists:
             result_monthly = fetchNinePeriodData(item[0], 'monthly')
-            count = 0
-            for trade in result_monthly:
-                if trade.open > trade.close:
-                    count += 1
-                else:
-                    break
-            if count >= 4:
-                monthly_list.append([trade.name, trade.code, count])
+            if len(result_monthly) == 11:
+                count = 0
+                for trade in result_monthly:
+                    if trade.open > trade.close:
+                        count += 1
+                    else:
+                        break
+                if count >= 7:
+                    if result_monthly[0].turn_over_rate > 20:
+                        monthly_list.append([result_monthly[0].name, result_monthly[0].code, count])
+                    # else:
+                    #     print(result_monthly[0].name, result_monthly[0].code, count, result_monthly[0].turn_over_rate)
 
             handle += 1
             percent = handle / length_total
@@ -323,7 +331,7 @@ def fetchNinePeriodData(sid, period):
             )
         ).order_by(
             models.StockTradeWeekly.timestamp.desc()
-        ).limit(9).all()
+        ).limit(10).all()
     elif period == 'monthly':
         return models.session.query(
             models.StockTradeMonthly
@@ -333,7 +341,7 @@ def fetchNinePeriodData(sid, period):
             )
         ).order_by(
             models.StockTradeMonthly.timestamp.desc()
-        ).limit(9).all()
+        ).limit(11).all()
 
 # def main():
 #     uinfo = []
