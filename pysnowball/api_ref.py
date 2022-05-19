@@ -59,4 +59,6 @@ hkex_connect = "http://www.hkexnews.hk/sdw/search/mutualmarket.aspx?t="
 kline_list_url = "https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol="
 
 # lists
-lists_url = "https://xueqiu.com/service/v5/stock/screener/quote/list?order=asc&orderby=code&order_by=symbol&market=CN&type=sh_sz"
+stock_list_url = "https://xueqiu.com/service/v5/stock/screener/quote/list?order=asc&orderby=code&order_by=symbol&market=CN&type=sh_sz"
+
+debenture_list_url = "https://xueqiu.com/service/v5/stock/screener/quote/list?page=1&size=60&order=asc&orderby=percent&order_by=percent&exchange=CN&market=CN&industry=可转债&type=convert&_=1652862532254"

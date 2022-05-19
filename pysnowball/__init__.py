@@ -33,4 +33,4 @@ from pysnowball.hkex import (
 
 from pysnowball.kline import (daily, weekly, monthly)
 
-from pysnowball.lists import (list)
+from pysnowball.lists import (stock_list, debenture_list)

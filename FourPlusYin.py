@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import bs4
 import pysnowball as ball
 
+
 def getHTMLText(url):
     try:
         r = requests.get(url, timeout=30)
@@ -20,32 +21,34 @@ def getHTMLText(url):
     except:
         return ""
 
+
 def fillFourYinList(ulist, html):
     soup = BeautifulSoup(html, "html.parser")
-    node_xuanguul = soup.find('ul',id='xuanguul')
+    node_xuanguul = soup.find('ul', id='xuanguul')
     timestamp = currentTime()
     for li in node_xuanguul.children:
         # print(li)
         if isinstance(li, bs4.element.Tag):
-            span_xh = li('span')[0].string #序号 <span class="xh">1</span>
+            span_xh = li('span')[0].string  # 序号 <span class="xh">1</span>
             # print(span_xh)
-            span_name_title = li('span')[1].string #名称
+            span_name_title = li('span')[1].string  # 名称
             # print(span_name_title)
             if li('span')[1].select_one('a[href]'):
                 stock_number = li.get('scode')
                 stock_number_c = ''
-                if int(stock_number) < 680000: # 过滤掉科创板 68+
+                if int(stock_number) < 680000:  # 过滤掉科创板 68+
                     if int(stock_number) < 600000:
                         stock_number_c = 'SZ' + stock_number
                     else:
                         stock_number_c = 'SH' + stock_number
 
-                    span_name = li('span')[1].select_one('a[href]').string #名称
+                    span_name = li('span')[1].select_one('a[href]').string  # 名称
                     # print(span_name)
-                    stock_url = li('span')[1].select_one('a[href]').get('href') # 股票 url
+                    stock_url = li('span')[1].select_one('a[href]').get('href')  # 股票 url
                     # print(stock_url)
                     greenTimes = totalNineYinList(stock_number_c, timestamp)
                     ulist.append([span_xh, span_name, stock_number_c, greenTimes])
+
 
 def totalNineYinList(stock_number_c, begin):
     data = ball.daily(stock_number_c, begin)['data']
@@ -62,14 +65,14 @@ def totalNineYinList(stock_number_c, begin):
     #         return greenTimes
 
     ## 以下算法是根据 上一个交易日的收盘价 && 当前开盘价 && 当前收盘价 进行计数
-    for i in range( len(data['item']), -1, -1):
+    for i in range(len(data['item']), -1, -1):
         if i > 0:
             # print(i)
-            closing_price_prev = data['item'][i-2][5]
+            closing_price_prev = data['item'][i - 2][5]
             # print(closing_price_prev)
-            opening_price_current = data['item'][i-1][2]
+            opening_price_current = data['item'][i - 1][2]
             # print(opening_price_current)
-            closing_price_current = data['item'][i-1][5]
+            closing_price_current = data['item'][i - 1][5]
             # print(closing_price_current)
 
             if closing_price_current < opening_price_current:
@@ -83,28 +86,31 @@ def totalNineYinList(stock_number_c, begin):
                 return greenTimes
     return greenTimes
 
+
 def printUnivList(ulist):
     tplt = "{0:^4}\t{1:^8}\t{2:6}\t{3:^4}"
-    print(tplt.format("序号","股票名称","股票代码","连阴次数", chr(12288)))
+    print(tplt.format("序号", "股票名称", "股票代码", "连阴次数", chr(12288)))
     for i in range(len(ulist)):
         u = ulist[i]
-        if u[3] > 3 :
-            print(tplt.format(u[0],u[1],u[2],u[3],chr(12288)))
+        if u[3] > 3:
+            print(tplt.format(u[0], u[1], u[2], u[3], chr(12288)))
+
 
 def currentTime():
     current = datetime.datetime.now()
-    #打印当前时间
+    # 打印当前时间
     print("当前时间 :", current)
 
     year = datetime.datetime.now().year
     month = datetime.datetime.now().month
     day = datetime.datetime.now().day
     # 雪球网请求是需要把日往后延一天
-    dt = str(year) + '-' + str(month) + '-' + str(day+1) + ' 17:00:00'
+    dt = str(year) + '-' + str(month) + '-' + str(day + 1) + ' 17:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
-    return round(timestamp*1000)
+    return round(timestamp * 1000)
+
 
 def main():
     uinfo = []
@@ -113,5 +119,6 @@ def main():
     html = getHTMLText(url)
     fillFourYinList(uinfo, html)
     printUnivList(uinfo)
+
 
 main()

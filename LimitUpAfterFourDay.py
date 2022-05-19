@@ -14,13 +14,15 @@ from bs4 import BeautifulSoup
 import bs4
 import pysnowball as ball
 
+
 # 该版本属于远程拉取版
 
 # 抓取股票列表
 def fetchStockList(timestamp):
-    list = ball.list(5000)
+    list = ball.stock_list(5000)
     # print(list)
     return list
+
 
 # 抓取股票信息
 def fetchStockInfo(ulist, data, timestamp):
@@ -67,19 +69,20 @@ def fetchStockInfo(ulist, data, timestamp):
                         times_flag += 1
                 if times_flag == 5:
                     ulist.append([item['name'], item['symbol']])
-        #当需要分开捕获多个异常可以使用多条except语句，try与except之间语句触发任意一个异常捕获后就跳到对应except执行其下面的语句，其余except不在继续执行
+        # 当需要分开捕获多个异常可以使用多条except语句，try与except之间语句触发任意一个异常捕获后就跳到对应except执行其下面的语句，其余except不在继续执行
         except IndexError as e:
-            print("this is a IndexError:",e)
+            print("this is a IndexError:", e)
         except KeyError as e:
-            print("this is a KeyError:",e)
+            print("this is a KeyError:", e)
 
         time.sleep(0.1)
         handle += 1
         percent = handle / length_total
-        surplus = round((length_total - handle)*0.15, 1)
+        surplus = round((length_total - handle) * 0.15, 1)
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
         # print("\r 完成度为%f%, 还剩余%f秒。" %percent %surplus, end='', flush=True)
     return ulist
+
 
 def printUnivList(ulist):
     tplt = "\r{0:^4}\t{1:^8}\t{2:8}"
@@ -87,6 +90,7 @@ def printUnivList(ulist):
     for i in range(len(ulist)):
         u = ulist[i]
         print(tplt.format(i, u[0], u[1], chr(12288)))
+
 
 def currentTime():
     current = datetime.datetime.now()
@@ -102,6 +106,7 @@ def currentTime():
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
+
 
 def main():
     uinfo = []
