@@ -2,7 +2,7 @@
 cd ~/Code/StockPicker
 . env/bin/activate
 git pull
-python3.9 RobotMonthly.py
+python3.9 Robotweekly.py
 
 #python3.9 -m venv env
 #. env/bin/activate
