@@ -207,7 +207,7 @@ def nineDailyData(limit=9):
                     count += 1
                 else:
                     break
-            if count >= 7:
+            if count >= 5:
                 daily_list.append([trade.name, trade.code, count])
 
             handle += 1
@@ -248,7 +248,7 @@ def nineWeeklyData(limit=10):
                         count += 1
                     else:
                         break
-                if count >= 7:
+                if count >= 6:
                     if result_weekly[0].turn_over_rate > 20:
                         weekly_list.append([result_weekly[0].name, result_weekly[0].code, count])
                     # else:

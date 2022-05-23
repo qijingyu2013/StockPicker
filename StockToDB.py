@@ -285,31 +285,31 @@ def upgradeStockTrade(timestamp, period='all'):
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
             elif period == 'weekly':
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -2)['data']['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本周数据
-                data_weekly.pop()
+                # data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
             elif period == 'monthly':
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -2)['data']['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本月数据
-                data_monthly.pop()
+                # data_monthly.pop()
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             else:
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -2)['data']['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本周数据
-                data_weekly.pop()
+                # data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -2)['data']['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本月数据
-                data_monthly.pop()
+                # data_monthly.pop()
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
         except KeyError as e:
