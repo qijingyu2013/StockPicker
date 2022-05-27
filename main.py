@@ -5,8 +5,7 @@ from LimitUpAfterThreeDayWithDB import fetchLimitUpAfterThreeDay
 from NineYin import nineDailyData, nineMonthlyData, nineWeeklyData
 from Shareholder import topTenHolders, allHolders
 from StockToDB import upgradeStockList, upgradeStockTrade
-from utils import currentTime
-
+from utils import currentTime, TOKEN
 
 def main():
     print('###初始化执行任务')
@@ -20,7 +19,7 @@ def main():
     print('[8] 获取股票股东信息')
     print('根据编号选择任务:')
     s = int(input())
-    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+    ball.set_token(TOKEN)
     timestamp = currentTime()
 
     if s == 1:
@@ -36,8 +35,8 @@ def main():
     elif s == 4:
         print('输入连阴次数:')
         count = int(input())
-        if count <= 7:
-            nineDailyData(7)
+        if count <= 5:
+            nineDailyData(5)
         elif count >= 9:
             nineDailyData(9)
         else:
@@ -45,8 +44,8 @@ def main():
     elif s == 5:
         print('输入连阴次数:')
         count = int(input())
-        if count <= 7:
-            nineWeeklyData(7)
+        if count <= 6:
+            nineWeeklyData(6)
         elif count >= 10:
             nineWeeklyData(10)
         else:

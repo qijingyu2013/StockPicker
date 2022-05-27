@@ -2,7 +2,7 @@ import pysnowball as ball
 from LimitUpAfterThreeDayWithDB import fetchLimitUpAfterThreeDay
 from NineYin import nineDailyData
 from StockToDB import upgradeStockList, upgradeStockTrade
-from utils import currentTime
+from utils import currentTime, TOKEN
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
     print('[2] 保存并且更新股票行情')
     print('[3] 获取日连阴票')
     print('[4] 获取满足5天前涨停后4天不破位的票')
-    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+    ball.set_token(TOKEN)
     timestamp = currentTime()
     upgradeStockList(timestamp)
     upgradeStockTrade(timestamp, 'daily')

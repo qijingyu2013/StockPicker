@@ -13,11 +13,14 @@ import requests
 from bs4 import BeautifulSoup
 import bs4
 import pysnowball as ball
-
+from utils import TOKEN
 
 # 该版本属于远程拉取版
 
 # 抓取股票列表
+
+
+
 def fetchStockList(timestamp):
     list = ball.stock_list(5000)
     # print(list)
@@ -110,7 +113,7 @@ def currentTime():
 
 def main():
     uinfo = []
-    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+    ball.set_token(TOKEN)
     timestamp = currentTime()
     lists = fetchStockList(timestamp)
     fetchStockInfo(uinfo, lists, timestamp)

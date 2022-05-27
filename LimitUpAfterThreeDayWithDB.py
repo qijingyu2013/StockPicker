@@ -93,7 +93,7 @@ def printUnivList(ulist):
 
 # def main():
 #     uinfo = []
-#     ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+#     ball.set_token(TOKEN)
 #     # timestamp = currentTime()
 #     fetchLimitUpAfterThreeDay()
 #

@@ -10,6 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 import bs4
 import pysnowball as ball
+from utils import TOKEN
 
 
 def getHTMLText(url):
@@ -115,7 +116,7 @@ def currentTime():
 def main():
     uinfo = []
     url = 'http://www.tetegu.com/4lianyin/?src=indexgezi'
-    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+    ball.set_token(TOKEN)
     html = getHTMLText(url)
     fillFourYinList(uinfo, html)
     printUnivList(uinfo)

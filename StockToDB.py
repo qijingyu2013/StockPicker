@@ -15,6 +15,7 @@ from sqlalchemy import and_
 
 import models
 import pysnowball as ball
+from utils import TOKEN
 
 
 # 抓取股票列表
@@ -414,7 +415,7 @@ def currentTime():
 
 
 def main():
-    ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+    ball.set_token(TOKEN)
     timestamp = currentTime()
     upgradeStockTrade(timestamp)
 #     print('###初始化执行任务')
@@ -423,7 +424,7 @@ def main():
 #     print('[3] 全量更新')
 #     print('根据编号选择任务:')
 #     s = int(input())
-#     ball.set_token('xq_a_token=9d7c75c59c8b3ef763711f682f3bb26163c4aad7;')
+#     ball.set_token(TOKEN)
 #     timestamp = currentTime()
 #
 #     if s == 1:

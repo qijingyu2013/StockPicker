@@ -1,6 +1,9 @@
 import datetime
 import time
 
+# 雪球相关配置 (这段本应该放在 config.py，token 是周期性更新，且自用，没必要给自己增加麻烦所以提出来放在这里做全局参数用)
+XQ_A_TOKEN = '2ac02e92a4583304b55e106fc6f03919c8f3c883'
+TOKEN = 'xq_a_token={};'.format(XQ_A_TOKEN)
 
 def currentTime():
     current = datetime.datetime.now()
