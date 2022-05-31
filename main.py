@@ -5,6 +5,7 @@ from LimitUpAfterThreeDayWithDB import fetchLimitUpAfterThreeDay
 from NineYin import nineDailyData, nineMonthlyData, nineWeeklyData
 from Shareholder import topTenHolders, allHolders
 from StockToDB import upgradeStockList, upgradeStockTrade
+from Predictor import tradeT
 from utils import currentTime, TOKEN
 
 def main():
@@ -17,6 +18,7 @@ def main():
     print('[6] 获取连月阴票(11)')
     print('[7] 获取满足4天前涨停后3天不破位的票')
     print('[8] 获取股票股东信息')
+    print('[9] 预测第二天交易信息')
     print('根据编号选择任务:')
     s = int(input())
     ball.set_token(TOKEN)
@@ -74,6 +76,8 @@ def main():
             allHolders(code)
         else:
             topTenHolders(code)
+    elif s == 9:
+        tradeT()
     else:
         print('输入错误。。。')
 

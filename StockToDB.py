@@ -81,7 +81,8 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 models.StockList.code < 200000,
-                models.StockList.status.in_((0, 1 if st else 0))
+                models.StockList.status.in_((0, 1 if st else 0)),
+                models.StockList.delete == 0
             )
         ).all()
         # 创业板
@@ -94,7 +95,8 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             and_(
                 models.StockList.code >= 300000,
                 models.StockList.code < 310000,
-                models.StockList.status.in_((0, 1 if st else 0))
+                models.StockList.status.in_((0, 1 if st else 0)),
+                models.StockList.delete == 0
             )
         ).all()
         # 沪
@@ -107,7 +109,8 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             and_(
                 models.StockList.code >= 600000,
                 models.StockList.code < 688000,
-                models.StockList.status.in_((0, 1 if st else 0))
+                models.StockList.status.in_((0, 1 if st else 0)),
+                models.StockList.delete == 0
             )
         ).all()
 

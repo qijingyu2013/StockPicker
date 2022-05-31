@@ -203,7 +203,7 @@ def nineDailyData(limit=9):
             result_daily = fetchNinePeriodData(item[0], 'daily')
             count = 0
             for trade in result_daily:
-                if trade.open > trade.close:
+                if trade.open >= trade.close != trade.limit_up:
                     count += 1
                 else:
                     break
@@ -244,7 +244,7 @@ def nineWeeklyData(limit=10):
             if len(result_weekly) == 10:
                 count = 0
                 for trade in result_weekly:
-                    if trade.open > trade.close:
+                    if trade.open >= trade.close:
                         count += 1
                     else:
                         break
@@ -288,7 +288,7 @@ def nineMonthlyData(limit=11):
             if len(result_monthly) == 11:
                 count = 0
                 for trade in result_monthly:
-                    if trade.open > trade.close:
+                    if trade.open >= trade.close:
                         count += 1
                     else:
                         break
