@@ -14,6 +14,8 @@ def currentTime():
     month = datetime.datetime.now().month
     day = datetime.datetime.now().day
     # 雪球网请求是需要把日往后延一天
+    if (day + 1) > 31:
+        day = 30
     dt = str(year) + '-' + str(month) + '-' + str(day + 1) + ' 17:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
