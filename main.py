@@ -77,7 +77,10 @@ def main():
         else:
             topTenHolders(code)
     elif s == 9:
-        tradeT()
+        list = ['605366']
+        list = ['300581', '000930', '300077', '002373', '600893', '000017', '002620']
+
+        tradeT(list)
     else:
         print('输入错误。。。')
 

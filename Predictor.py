@@ -33,13 +33,14 @@ def fetchTradeDataAll(code):
 
 
 def ma5(data):
-    total = 0
+    price = 0
+    percents = 0
+    conversion = 0
     for i in range(0, 5, 1):
-        total += data[i].close
-        # print(data[i].close)
-    avg = total / 5
-    # print(avg)
-    return avg
+        price += data[i].close
+        percents += data[i].percent
+        conversion += data[i].turn_over_rate
+    return [price / 5, percents/5, conversion/5]
 
 
 def highMargin(data):
@@ -65,26 +66,31 @@ def lowMargin(data):
 def average(margin):
     margin.sort()
     margin.pop()
+    margin.pop()
+    margin.pop()
+    margin.pop()
     margin.reverse()
+    margin.pop()
+    margin.pop()
+    margin.pop()
     margin.pop()
     return sum(margin) / len(margin)
 
 
-def history():
-    lists = ['300581']
-    datas = fetchTradeDataAll(lists)
+# 剔除成功率低于50%的计算
+def history(item):
+    datas = fetchTradeDataAll(item)
     length = len(datas) - 6
 
     s_arr = []
     b_arr = []
 
-    for ratio in range(10000, 0, -1):
+    for ratio in range(5000, 1, -1):
         s_c = 0
         b_c = 0
         for i in range(1, length, 1):
             # print(i)
             data = datas[i:i + 6]
-            avg = ma5(data)
             high = highMargin(data)
             low = lowMargin(data)
             # print("股票:", data[0].name)
@@ -117,32 +123,46 @@ def history():
     s_coefficient = 0
     b_coefficient = 0
 
-    for i in range(0, 9999, 1):
-        if s_arr[i] >= 80:
-            s_coefficient = i + 1
+    for i in range(0, 4999, 1):
+        if s_arr[i] > 80:
+            # print('当前系数', i, '成功率', s_arr[i])
+            s_coefficient = 10000 - (i + 5000)
             break
-    for i in range(0, 9999, 1):
-        if b_arr[i] >= 80:
-            b_coefficient = i + 1
+    for i in range(0, 4999, 1):
+        if b_arr[i] > 80:
+            # print('当前系数', i, '成功率', b_arr[i])
+            b_coefficient = 10000 - (i + 5000)
             break
 
     # print("卖的最高系数", s_coefficient)
+    # print("卖的最高系数成功率", s_arr[s_coefficient-5000])
     # print("买的最高系数", b_coefficient)
+    # print("买的最高系数成功率", b_arr[b_coefficient-5000])
     return [s_coefficient, b_coefficient]
 
 
-def tradeT():
-    lists = ['300581', '000930', '300077', '600893', '000017', '002620']
+def tradeT(lists):
     for item in lists:
         data = fetchTradeData(item)
-        avg = ma5(data)
+        ma5s = ma5(data)
+        # 5日均价
+        avg = ma5s[0]
+        # 5日平均涨幅
+        percent = ma5s[1]
+        # 5日平均换手率
+        conversion = ma5s[2]
         high = highMargin(data)
         low = lowMargin(data)
         print("股票:", data[0].name)
-        coefficient = history()
+        # 获取历史高于80%成功率的交易系数
+        coefficient = history(item)
+        # 买卖还要在均线上下还要加一点成功率
+        # 买卖点越接近均线 成功率越高
+        # 买点低于均线时 成功率低 买点高于均线时 成功率高
+        # 低于均线卖 成功率高 * (1 + percent / 100)  + percent / 2 * conversion / 100
 
-        sell = data[0].close * (1 + high * coefficient[0]/10000)
-        buy = data[0].close * (1 - low * coefficient[1]/10000)
+        sell = data[0].close * (1 + high * coefficient[0] / 10000)
+        buy = data[0].close * (1 - low * coefficient[1] / 10000)
         # print("当天收盘价:", data[0].close)
         # print("当天均价:", round(avg, 2))
         # 卖出价格 前一日的收盘价 * （100 +（高于均线+0.5+2）/100 或者低于均线时取均线价格
@@ -175,6 +195,5 @@ def tradeT():
         #     print("明日买点:", round(avg, 2))
         # else:
         #     print("明日买点:", round(buy, 2))
-
 
 # history()

@@ -55,6 +55,8 @@ def fetchLimitUpAfterThreeDay():
                                 break
                             if result[i].turn_over_rate <= 10:
                                 break
+                            if result[i].close == result[i].limit_up:
+                                break
                         if count == 3:
                             # 第一天的收盘价 和 最后一天的收盘价 幅度不超过5%
                             difference = result[0].close - result[3].close
