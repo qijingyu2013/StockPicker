@@ -5,28 +5,34 @@
 
 # 卖出价格 前一日的收盘价 * （100 +（高于均线+0.5+2）/100 或者低于均线时取均线价格
 # 买入价格 前一日的收盘价 * （100 -（低于均线+0.5+2））/100 或者高于均线时取均线价格
-
+# 通过机器学习来预测上涨和下跌的概率
 # 先定义股票列表
 from sqlalchemy import and_
 
 import models
 
 
-def fetchTradeData(code):
+def fetchTradeData(code, num=30):
     return models.session.query(
         models.StockTrade
     ).filter(
-        and_(models.StockTrade.code == code)
+        and_(
+            models.StockTrade.code == code,
+            models.StockTrade.delete == 0
+        )
     ).order_by(
         models.StockTrade.timestamp.desc()
-    ).limit(6).all()
+    ).limit(num+1).all()
 
 
 def fetchTradeDataAll(code):
     return models.session.query(
         models.StockTrade
     ).filter(
-        and_(models.StockTrade.code == code)
+        and_(
+            models.StockTrade.code == code,
+            models.StockTrade.delete == 0
+        )
     ).order_by(
         models.StockTrade.timestamp.desc()
     ).all()
@@ -38,42 +44,62 @@ def ma5(data):
     conversion = 0
     for i in range(0, 5, 1):
         price += data[i].close
-        percents += data[i].percent
+        percents += abs(data[i].percent)
         conversion += data[i].turn_over_rate
-    return [price / 5, percents/5, conversion/5]
+    return [price / 5, percents / 5, conversion / 5]
 
 
-def highMargin(data):
+def ma(data, num=30):
+    price = 0
+    percents = 0
+    conversion = 0
+    for i in range(0, num, 1):
+        price += data[i].close
+        percents += abs(data[i].percent)
+        conversion += data[i].turn_over_rate
+    return [price / num, percents / num, conversion / num]
+
+
+def highMargin(data, num=30):
     margin = []
-    for i in range(0, 5, 1):
+    for i in range(0, num, 1):
+        # 最高 - 前一天收盘价
+        # margin.append((data[i].high - data[i].close) / data[i].close)
+        # 最高 - 开盘价
         margin.append((data[i].high - data[i].open) / data[i].open)
-        margin.append((data[i].high - data[i].close) / data[i + 1].close)
-        margin.append((data[i].high - data[i].open) / data[i + 1].close)
-        margin.append((data[i].high - data[i + 1].close) / data[i + 1].close)
+        # 最高 - 前一天收盘价
+        # margin.append((data[i].high - data[i + 1].close) / data[i + 1].close)
+        # 所有涨的幅度
+        if data[i].percent > 0:
+            margin.append(data[i].percent / 100)
     return average(margin)
 
 
-def lowMargin(data):
+def lowMargin(data, num=30):
     margin = []
-    for i in range(0, 5, 1):
-        margin.append((data[i].open - data[i].low) / data[i].open)
-        margin.append((data[i].close - data[i].low) / data[i + 1].close)
-        margin.append((data[i].open - data[i].low) / data[i + 1].close)
-        margin.append((data[i + 1].close - data[i].low) / data[i + 1].close)
+    for i in range(0, num, 1):
+        # 开盘价 - 最低
+        # margin.append((data[i].open - data[i].low) / data[i].open)
+        # 收盘价 - 最低
+        margin.append((data[i].close - data[i].low) / data[i].close)
+        # 前一天收盘价 - 最低
+        # margin.append((data[i + 1].close - data[i].low) / data[i + 1].close)
+        # 所有跌的幅度
+        if data[i].percent < 0:
+            margin.append(abs(data[i].percent) / 100)
     return average(margin)
 
 
+# 此处是求平均， 但其实可以引入 cost function
 def average(margin):
+    # print(margin)
     margin.sort()
-    margin.pop()
-    margin.pop()
     margin.pop()
     margin.pop()
     margin.reverse()
     margin.pop()
     margin.pop()
-    margin.pop()
-    margin.pop()
+    # print(margin)
     return sum(margin) / len(margin)
 
 
@@ -113,6 +139,7 @@ def history(item):
         # print("一共计算", length, '次')
         # print("卖成功", s_c, '次', '成功率:', str(round(s_c / length * 100, 2)) + '%')
         # print("买成功", b_c, '次', '成功率:', str(round(b_c / length * 100, 2)) + '%')
+
         s_arr.append(round(s_c / length * 100, 2))
         b_arr.append(round(b_c / length * 100, 2))
 
@@ -122,7 +149,7 @@ def history(item):
     # print("买成功率", len(b_arr), b_arr)
     s_coefficient = 0
     b_coefficient = 0
-
+    # 此处应该引入回归函数
     for i in range(0, 4999, 1):
         if s_arr[i] > 80:
             # print('当前系数', i, '成功率', s_arr[i])
@@ -144,25 +171,30 @@ def history(item):
 def tradeT(lists):
     for item in lists:
         data = fetchTradeData(item)
-        ma5s = ma5(data)
-        # 5日均价
-        avg = ma5s[0]
-        # 5日平均涨幅
-        percent = ma5s[1]
-        # 5日平均换手率
-        conversion = ma5s[2]
+        # ma5s = ma(data, 5)
+        # # 5日均价
+        # avg = ma5s[0]
+        # # 5日平均涨幅
+        # percent = ma5s[1]
+        # # 5日平均换手率
+        # conversion = ma5s[2]
         high = highMargin(data)
         low = lowMargin(data)
         print("股票:", data[0].name)
+        print("平均上涨幅度:", round(high * 100, 2), "%")
+        print("平均下跌幅度:", round(low * 100, 2), "%")
+        # print(low)
         # 获取历史高于80%成功率的交易系数
-        coefficient = history(item)
+        # coefficient = history(item)
         # 买卖还要在均线上下还要加一点成功率
         # 买卖点越接近均线 成功率越高
         # 买点低于均线时 成功率低 买点高于均线时 成功率高
         # 低于均线卖 成功率高 * (1 + percent / 100)  + percent / 2 * conversion / 100
-
-        sell = data[0].close * (1 + high * coefficient[0] / 10000)
-        buy = data[0].close * (1 - low * coefficient[1] / 10000)
+        # print(coefficient)
+        # sell = data[0].close * (1 + high) * (1 + coefficient[0] / 10000)
+        # buy = data[0].close * (1 - low) * (1 - coefficient[1] / 10000)
+        sell = data[0].close * (1 + high)
+        buy = data[0].close * (1 - low)
         # print("当天收盘价:", data[0].close)
         # print("当天均价:", round(avg, 2))
         # 卖出价格 前一日的收盘价 * （100 +（高于均线+0.5+2）/100 或者低于均线时取均线价格

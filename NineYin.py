@@ -203,11 +203,13 @@ def nineDailyData(limit=9):
             result_daily = fetchNinePeriodData(item[0], 'daily')
             count = 0
             for trade in result_daily:
-                if trade.open >= trade.close != trade.limit_up:
+                if trade.open > trade.close:
+                    count += 1
+                elif trade.open == trade.close != trade.limit_up and trade.chg < 0:
                     count += 1
                 else:
                     break
-            if count >= 5:
+            if count > 4:
                 daily_list.append([trade.name, trade.code, count])
 
             handle += 1
@@ -244,13 +246,15 @@ def nineWeeklyData(limit=10):
             if len(result_weekly) == 10:
                 count = 0
                 for trade in result_weekly:
-                    if trade.open >= trade.close:
+                    if trade.open > trade.close:
+                        count += 1
+                    elif trade.open == trade.close and trade.chg < 0:
                         count += 1
                     else:
                         break
-                if count >= 6:
-                    if result_weekly[0].turn_over_rate > 20:
-                        weekly_list.append([result_weekly[0].name, result_weekly[0].code, count])
+                if count > 5:
+                    # if result_weekly[0].turn_over_rate > 20:
+                    weekly_list.append([result_weekly[0].name, result_weekly[0].code, count])
                     # else:
                     #     print(result_weekly[0].name, result_weekly[0].code, count, result_weekly[0].turn_over_rate)
 
@@ -288,13 +292,15 @@ def nineMonthlyData(limit=11):
             if len(result_monthly) == 11:
                 count = 0
                 for trade in result_monthly:
-                    if trade.open >= trade.close:
+                    if trade.open > trade.close:
+                        count += 1
+                    elif trade.open == trade.close and trade.chg < 0:
                         count += 1
                     else:
                         break
-                if count >= 7:
-                    if result_monthly[0].turn_over_rate > 20:
-                        monthly_list.append([result_monthly[0].name, result_monthly[0].code, count])
+                if count > 6:
+                    # if result_monthly[0].turn_over_rate > 20:
+                    monthly_list.append([result_monthly[0].name, result_monthly[0].code, count])
                     # else:
                     #     print(result_monthly[0].name, result_monthly[0].code, count, result_monthly[0].turn_over_rate)
 

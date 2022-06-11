@@ -13,7 +13,7 @@ def main():
     print('[4] 获取满足5天前涨停后4天不破位的票')
     ball.set_token(TOKEN)
     timestamp = currentTime()
-    upgradeStockList(timestamp)
+    # upgradeStockList(timestamp)
     upgradeStockTrade(timestamp, 'daily')
     nineDailyData()
     fetchLimitUpAfterThreeDay()

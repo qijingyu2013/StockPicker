@@ -301,6 +301,24 @@ def upgradeStockTrade(timestamp, period='all'):
                 # data_monthly.pop()
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
+            elif period == '60d':
+                # 抓取日行情
+                data_daily = ball.daily(item[1] + item[2], timestamp, -60)['data']['item']
+                saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+            elif period == '60w':
+                # 抓取周行情
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -60)['data']['item']
+                # 剔除本周数据 此处根据使用日期调整
+                # data_weekly.pop()
+                # 保存行情信息
+                saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
+            elif period == '60m':
+                # 抓取月行情
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -60)['data']['item']
+                # 剔除本月数据 此处根据使用日期调整
+                data_monthly.pop()
+                # 保存行情信息
+                saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             else:
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
@@ -322,7 +340,7 @@ def upgradeStockTrade(timestamp, period='all'):
         time.sleep(0.5)
         handle += 1
         percent = handle / length_total
-        surplus = round((length_total - handle) * 0.75, 1)
+        surplus = round((length_total - handle) * 1.52, 1)
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
 
     return
@@ -417,10 +435,72 @@ def currentTime():
     return round(timestamp * 1000)
 
 
-def main():
-    ball.set_token(TOKEN)
-    timestamp = currentTime()
-    upgradeStockTrade(timestamp)
+# 找出重复数据
+# SELECT `code` , count(*) as c from stock_list group by `code` having c>1;
+# SELECT max(id) as Id, name, `code` , count(*) as c from stock_list group by `code` having c>1;
+# SELECT id from (SELECT max(id) as Id, name, `code` , count(*) as c from stock_list group by `code` having c>1) as t;
+# select * from stock_list where id in (SELECT id from (SELECT max(id) as Id, name, `code` , count(*) as c from stock_list group by `code` having c>1) as t);def main():
+
+# SELECT `code` , count(*) as c, `name`, `delete` from stock_list group by `code` having c>1 and (`name` like '%XD%' or `name` like '%DR%' or `name` like '%N%' or `name` like '%st%') and `delete` = 0;
+# update stock_list set delete = 1 where id in (SELECT `code` , count(*) as c, `name`, `delete` from stock_list group by `code` having c>1 and (`name` like '%XD%' or `name` like '%DR%' or `name` like '%N%' or `name` like '%st%') and `delete` = 0);
+
+
+## 这里是删除多余数据的 sql
+##
+#     UPDATE stock_list
+# SET `delete` = 1
+# WHERE
+# id IN (
+#     SELECT
+# id
+# FROM
+#     (
+#     SELECT
+# id,
+# `code`,
+# count( * ) AS c,
+#               `name`,
+#               `delete`
+# FROM
+# stock_list
+# GROUP BY
+# `code`
+# HAVING
+# c > 1
+# AND ( `name` LIKE '%XD%' OR `name` LIKE '%DR%' OR `name` LIKE '%N%' OR `name` LIKE '%st%' )
+# AND `delete` = 0
+# ) AS t
+# );
+
+##
+# UPDATE stock_list
+# SET `delete` = 1
+# WHERE
+# id IN (
+#     SELECT
+# id
+# FROM
+#     (
+#     SELECT
+# min(id) as id,
+#            `code`,
+#            count( * ) AS c,
+#                          `name`,
+#                          `delete`
+# FROM
+# stock_list
+# GROUP BY
+# `code`
+# HAVING
+# c > 1
+# AND `delete` = 0
+# ) AS t
+# );
+##
+
+# ball.set_token(TOKEN)
+# timestamp = currentTime()
+# upgradeStockTrade(timestamp)
 #     print('###初始化执行任务')
 #     print('[1] 保存并且更新股票信息')
 #     print('[2] 保存并且更新股票行情')
@@ -444,4 +524,24 @@ def main():
 #         print('输入错误。。。')
 #
 #
+
+
+# def main():
+#     # 更新60份行情数据
+#     ball.set_token(TOKEN)
+#     timestamp = currentTime()
+#     upgradeStockTrade(timestamp, '60d')
+#     upgradeStockTrade(timestamp, '60w')
+#     upgradeStockTrade(timestamp, '60m')
+#     print('执行结束。')
+#
 # main()
+
+# 加 st 状态
+# select * from stock_list WHERE `name` LIKE '%st%'
+# UPDATE stock_list SET `status` = 1 WHERE `name` LIKE '%st%'
+# select * from stock_list WHERE `name` LIKE '%退%'
+# UPDATE stock_list SET `status` = 2 , `delete`=1 WHERE `name` LIKE '%退%'
+
+
+#
