@@ -14,8 +14,11 @@
 
 token 从访问 url 里的 cookies 中获取
 
+拿到 token 后放入 util.py 里面
 [https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=SH000001,SZ399001,SZ399006&_=1541640828575
 ](https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=SH000001,SZ399001,SZ399006&_=1541640828575)
+
+
 
 操作流程
 
