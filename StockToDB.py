@@ -526,16 +526,16 @@ def currentTime():
 #
 
 
-# def main():
+def main():
 #     # 更新60份行情数据
-#     ball.set_token(TOKEN)
-#     timestamp = currentTime()
-#     upgradeStockTrade(timestamp, '60d')
+    ball.set_token(TOKEN)
+    timestamp = currentTime()
+    upgradeStockTrade(timestamp, '60d')
 #     upgradeStockTrade(timestamp, '60w')
 #     upgradeStockTrade(timestamp, '60m')
-#     print('执行结束。')
+    print('执行结束。')
 #
-# main()
+main()
 
 # 加 st 状态
 # select * from stock_list WHERE `name` LIKE '%st%'
