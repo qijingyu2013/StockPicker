@@ -3,7 +3,7 @@
 # 1. 每天定时自动拉取前一天股票数据
 # 1.1 抓取股票信息
 # 1.2 抓取指定日期的股票行情
-# 2. 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)
+# 2. 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)  此处改为：不跌破涨停日的收盘价
 # 2.1 找出4天前涨停成功的票
 # 2.2 筛选出4天后不跌破涨停开盘价的票
 # 2.3 后面3天涨幅不能超过5%
@@ -49,7 +49,8 @@ def fetchLimitUpAfterThreeDay():
                     if result[3].close == result[3].limit_up:
                         count = 0
                         for i in range(2, -1, -1):
-                            if result[3].open < result[i].close:
+                            # 不跌破涨停日的收盘价
+                            if result[3].close < result[i].low:
                                 count += 1
                             else:
                                 break
