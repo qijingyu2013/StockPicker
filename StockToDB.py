@@ -534,8 +534,8 @@ def main():
 #     upgradeStockTrade(timestamp, '60w')
 #     upgradeStockTrade(timestamp, '60m')
     print('执行结束。')
-#
-main()
+# 单独更新数据时使用！
+# main()
 
 # 加 st 状态
 # select * from stock_list WHERE `name` LIKE '%st%'
