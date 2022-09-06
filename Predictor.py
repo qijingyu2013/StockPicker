@@ -180,6 +180,7 @@ def tradeT(lists):
         # conversion = ma5s[2]
         high = highMargin(data)
         low = lowMargin(data)
+        print(">>>>>>>>>>>>>>>>>>>")
         print("股票代号:", item)
         print("股票名称:", data[0].name)
         print("平均上涨幅度:", round(high * 100, 2), "%")
@@ -217,6 +218,7 @@ def tradeT(lists):
         print("今日收盘:", data[0].close)
         print("明日卖点:", round(sell, 2))
         print("明日买点:", round(buy, 2))
+        print("<<<<<<<<<<<<<<<<<<<")
         # sell = data[0].close * (1 + high*0.33)
         # if sell < avg:
         #     print("明日卖点:", round(avg, 2))
