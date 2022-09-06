@@ -180,7 +180,8 @@ def tradeT(lists):
         # conversion = ma5s[2]
         high = highMargin(data)
         low = lowMargin(data)
-        print("股票:", data[0].name)
+        print("股票代号:", item)
+        print("股票名称:", data[0].name)
         print("平均上涨幅度:", round(high * 100, 2), "%")
         print("平均下跌幅度:", round(low * 100, 2), "%")
         # print(low)

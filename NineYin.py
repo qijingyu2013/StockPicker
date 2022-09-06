@@ -196,7 +196,7 @@ def nineDailyData(limit=9):
     ).one_or_none()
 
     if mission is None:
-        lists = fetchStockListFromDB(StockType.HuShen, False)
+        lists = fetchStockListFromDB(StockType.HuShenChuang, False)
         length_total = len(lists)
         handle = 0
         for item in lists:
@@ -284,7 +284,7 @@ def nineMonthlyData(limit=11):
     ).one_or_none()
 
     if mission is None:
-        lists = fetchStockListFromDB(StockType.HuShen, False)
+        lists = fetchStockListFromDB(StockType.HuShenChuang, False)
         length_total = len(lists)
         handle = 0
         for item in lists:
