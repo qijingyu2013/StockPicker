@@ -327,7 +327,7 @@ def fetchNinePeriodData(sid, period):
             )
         ).order_by(
             models.StockTrade.timestamp.desc()
-        ).limit(9).all()
+        ).limit(16).all()
     elif period == 'weekly':
         return models.session.query(
             models.StockTradeWeekly
@@ -337,7 +337,7 @@ def fetchNinePeriodData(sid, period):
             )
         ).order_by(
             models.StockTradeWeekly.timestamp.desc()
-        ).limit(10).all()
+        ).limit(18).all()
     elif period == 'monthly':
         return models.session.query(
             models.StockTradeMonthly
@@ -347,7 +347,7 @@ def fetchNinePeriodData(sid, period):
             )
         ).order_by(
             models.StockTradeMonthly.timestamp.desc()
-        ).limit(11).all()
+        ).limit(20).all()
 
 # def main():
 #     uinfo = []
