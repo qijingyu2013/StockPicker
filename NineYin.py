@@ -124,7 +124,7 @@ def printUnivList(lists, limit, period):
             if u[2] >= limit:
                 print(template.format(i+1, u[0], u[1], u[2], chr(12288)))
 
-        single_template = "\r{1:<}"
+        single_template = "\r{0:>4}"
         print(single_template.format("股票代码", chr(12288)))
         for i in range(lists_len):
             u = lists[i]
