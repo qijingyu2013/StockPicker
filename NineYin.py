@@ -123,6 +123,14 @@ def printUnivList(lists, limit, period):
             u = lists[i]
             if u[2] >= limit:
                 print(template.format(i+1, u[0], u[1], u[2], chr(12288)))
+
+        single_template = "\r{1:<}"
+        print(single_template.format("股票代码", chr(12288)))
+        for i in range(lists_len):
+            u = lists[i]
+            if u[2] >= limit:
+                print(single_template.format("\'"+u[1]+"\',", chr(12288)))
+
     else:
         if period == 'daily':
             print("\r今天没有连日阴" + str(limit) + "的票哦！")
