@@ -2,21 +2,24 @@ import datetime
 import time
 
 # 雪球相关配置 (这段本应该放在 config.py，token 是周期性更新，且自用，没必要给自己增加麻烦所以提出来放在这里做全局参数用)
-XQ_A_TOKEN = 'd4b54ea44f3ff5765b42f79586d8c79afc54cc83'
+XQ_A_TOKEN = 'c0eab8f529025d8da17001c3ac7718ba22d6f3ec'
 TOKEN = 'xq_a_token={};'.format(XQ_A_TOKEN)
 
 def currentTime():
     current = datetime.datetime.now()
     # 打印当前时间
     print("当前时间 :", current)
-
-    year = datetime.datetime.now().year
-    month = datetime.datetime.now().month
-    day = datetime.datetime.now().day
+    today = datetime.date.today()
+    # yesterday = today - datetime.timedelta(days=1)
+    tomorrow = today + datetime.timedelta(days=1)
+    # print("当前时间 :", today)
+    # print("昨天 :", yesterday)
+    # print("明天 :", tomorrow)
+    # year = datetime.datetime.now().year
+    # month = datetime.datetime.now().month
+    # day = datetime.datetime.now().day
     # 雪球网请求是需要把日往后延一天
-    if (day + 1) > 31:
-        day = 30
-    dt = str(year) + '-' + str(month) + '-' + str(day + 1) + ' 17:00:00'
+    dt = str(tomorrow) + ' 17:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
@@ -25,24 +28,18 @@ def currentTime():
 def zeroTime():
     current = datetime.datetime.now()
     # 打印当前时间
-    # print("当前时间 :", current)
-
-    year = datetime.datetime.now().year
-    month = datetime.datetime.now().month
-    day = datetime.datetime.now().day
-    # 雪球网请求是需要把日往后延一天
-    dt = str(year) + '-' + str(month) + '-' + str(day) + ' 00:00:00'
+    print("当前时间 :", current)
+    today = datetime.date.today()
+    dt = str(today) + ' 00:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
     print(round(timestamp*1000))
     return round(timestamp * 1000)
 
 def customizeTime(offset=9):
-    year = datetime.datetime.now().year
-    month = datetime.datetime.now().month
-    day = datetime.datetime.now().day
-    # 雪球网请求是需要把日往后延一天
-    dt = str(year) + '-' + str(month) + '-' + str(day - offset) + ' 00:00:00'
+    today = datetime.date.today()
+    day = today + datetime.timedelta(days=offset)
+    dt = str(day) + ' 00:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
