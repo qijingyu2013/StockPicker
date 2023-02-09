@@ -52,7 +52,7 @@ def printOptimizedForm(lists, limit=0):
     for i in range(lists_len):
         u = lists[i]
         if limit == 0:
-            print(single_template.format("\'"+u[1]+"\', #" + u[0], chr(12288)))
+            print(single_template.format("\'"+u[1]+"\',  # " + u[0], chr(12288)))
         else:
             if u[2] >= limit:
-                print(single_template.format("\'"+u[1]+"\', #" + u[0], chr(12288)))
+                print(single_template.format("\'"+u[1]+"\',  # " + u[0], chr(12288)))
