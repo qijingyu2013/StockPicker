@@ -410,7 +410,7 @@ def fetchStockInfo(ulist, data, timestamp):
 def saveStockMission(timestamp, type, ulist):
     stock_mission_instance = models.StockMission(
         timestamp=timestamp,  # 时间戳
-        type=type,  # 任务类型 1=9阴 2=涨停后4天不破位
+        type=type,  # 任务类型 1=九阴 2=倍量 3=周九阴 4=月九阴 5=放量
         content=ulist,  # 执行结果
     )
     models.session.add(stock_mission_instance)

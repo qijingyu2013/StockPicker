@@ -18,7 +18,7 @@ from utils import currentTime, zeroTime
 
 # 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)
 # 3天涨幅不超过10%，跌幅不超过5%，每天换手率10
-def fetchLimitUpAfterThreeDay():
+def fetchMultiplier():
     ulist = []
     zero = zeroTime()
     mission = models.session.query(
@@ -89,7 +89,7 @@ def printUnivList(ulist):
         for i in range(len(ulist)):
             u = ulist[i]
             print(tplt.format(i, u[0], u[1], chr(12288)))
-        print('\r获取满足4天前涨停后3天不破位的票,已完成！')
+        print('\r获取满足倍量的票,已完成！')
     else:
         print("今天没有符合规则的票哦！")
 
@@ -98,7 +98,7 @@ def printUnivList(ulist):
 #     uinfo = []
 #     ball.set_token(TOKEN)
 #     # timestamp = currentTime()
-#     fetchLimitUpAfterThreeDay()
+#     fetchMultiplier()
 #
 #
 # main()
