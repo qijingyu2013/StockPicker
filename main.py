@@ -99,25 +99,25 @@ def main():
             '600486',
         ];
         # 持仓区
-        nine_trade_list = [
+        trade_list = [
             '600446',
             '002142',
             '600050',
         ];
         # 观察区
-        nine_observe_list = [
+        observe_list = [
             '603656'
         ];
         # list = ['000554']
         print('固定位 ============')
         tradeT(steady_list)
         print('固定位 ============')
-        print('九阴持仓区 ========')
-        tradeT(nine_trade_list)
-        print('九阴持仓区 ========')
-        print('九阴观察区 ========')
-        tradeT(nine_observe_list)
-        print('九阴观察区 ========')
+        print('持仓区 ========')
+        tradeT(trade_list)
+        print('持仓区 ========')
+        print('观察区 ========')
+        tradeT(observe_list)
+        print('观察区 ========')
     else:
         print('输入错误。。。')
 
