@@ -11,7 +11,7 @@ from sqlalchemy import and_
 import models
 from StockToDB import fetchStockListFromDB, StockType, saveStockMission
 import pysnowball as ball
-from utils import currentTime, zeroTime
+from utils import currentTime, zeroTime, printOptimizedForm
 
 
 # 3天内的成交量之和2倍于前3天的成交量之和
@@ -77,6 +77,8 @@ def printUnivList(ulist):
         for i in range(len(ulist)):
             u = ulist[i]
             print(tplt.format(i, u[0], u[1], chr(12288)))
+
+        printOptimizedForm(ulist, 0)
         print('\r获取满足放量的票,已完成！')
     else:
         print("今天没有符合规则的票哦！")

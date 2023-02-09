@@ -44,3 +44,15 @@ def customizeTime(offset=9):
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
+
+def printOptimizedForm(lists, limit=0):
+    lists_len = len(lists)
+    single_template = "\r{0:>4}"
+    print(single_template.format("股票代码", chr(12288)))
+    for i in range(lists_len):
+        u = lists[i]
+        if limit == 0:
+            print(single_template.format("\'"+u[1]+"\', #" + u[0], chr(12288)))
+        else:
+            if u[2] >= limit:
+                print(single_template.format("\'"+u[1]+"\', #" + u[0], chr(12288)))
