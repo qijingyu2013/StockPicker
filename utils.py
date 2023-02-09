@@ -2,7 +2,7 @@ import datetime
 import time
 
 # 雪球相关配置 (这段本应该放在 config.py，token 是周期性更新，且自用，没必要给自己增加麻烦所以提出来放在这里做全局参数用)
-XQ_A_TOKEN = 'c0eab8f529025d8da17001c3ac7718ba22d6f3ec'
+XQ_A_TOKEN = '030889433953bf4bf15985d7a13b442abad75180'
 TOKEN = 'xq_a_token={};'.format(XQ_A_TOKEN)
 
 def currentTime():
