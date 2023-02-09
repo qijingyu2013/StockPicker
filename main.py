@@ -1,14 +1,26 @@
 # 主文件
 
 import pysnowball as ball
-from LimitUpAfterThreeDayWithDB import fetchLimitUpAfterThreeDay
+from Multiplier import fetchMultiplier
 from NineYin import nineDailyData, nineMonthlyData, nineWeeklyData
+from ReleaseVolume import fetchReleaseVolume
 from Shareholder import topTenHolders, allHolders
 from StockToDB import upgradeStockList, upgradeStockTrade
 from Predictor import tradeT
 from utils import currentTime, TOKEN
 
 def main():
+    # 提前处理日常任务
+    print('-----九阴票-----')
+    nineDailyData(9)
+    print('-----九阴票-----')
+    print('-----倍量票-----')
+    fetchMultiplier()
+    print('-----倍量票-----')
+    print('-----放量票-----')
+    fetchReleaseVolume()
+    print('-----放量票-----')
+
     print('###初始化执行任务')
     print('[1] 保存并且更新股票信息')
     print('[2] 保存并且更新股票行情')
@@ -16,8 +28,8 @@ def main():
     print('[4] 获取连日阴票(9)')
     print('[5] 获取连周阴票(10)')
     print('[6] 获取连月阴票(11)')
-    print('[7] 获取满足4天前涨停后3天不破位的票')
-    print('[8] 获取股票股东信息')
+    print('[7] 获取倍量票')
+    print('[8] 获取放量票')
     print('[9] 预测第二天交易信息')
     print('根据编号选择任务:')
     s = int(input())
@@ -62,32 +74,50 @@ def main():
         else:
             nineMonthlyData(count)
     elif s == 7:
-        fetchLimitUpAfterThreeDay()
+        fetchMultiplier()
     elif s == 8:
-        print('[1] 前十股东信息:')
-        print('[2] 全部股东信息:')
-        print('根据编号选择任务:')
-        t = int(input())
-        print('请输入股票编码(带上大写SZ或者SH):')
-        code = str(input())
-        if t == 1:
-            topTenHolders(code)
-        elif t == 2:
-            allHolders(code)
-        else:
-            topTenHolders(code)
+        fetchReleaseVolume()
+    # elif s == 8:
+    #     print('[1] 前十股东信息:')
+    #     print('[2] 全部股东信息:')
+    #     print('根据编号选择任务:')
+    #     t = int(input())
+    #     print('请输入股票编码(带上大写SZ或者SH):')
+    #     code = str(input())
+    #     if t == 1:
+    #         topTenHolders(code)
+    #     elif t == 2:
+    #         allHolders(code)
+    #     else:
+    #         topTenHolders(code)
     elif s == 9:
-        list = [
+        # 固定位
+        steady_list = [
             '300581',
-            '000930',
             '300077',
             '002373',
-            '002030',
             '600486',
-            '600309'
-        ]
+        ];
+        # 持仓区
+        nine_trade_list = [
+            '600446',
+            '002142',
+            '600050',
+        ];
+        # 观察区
+        nine_observe_list = [
+            '603656'
+        ];
         # list = ['000554']
-        tradeT(list)
+        print('固定位 ============')
+        tradeT(steady_list)
+        print('固定位 ============')
+        print('九阴持仓区 ========')
+        tradeT(nine_trade_list)
+        print('九阴持仓区 ========')
+        print('九阴观察区 ========')
+        tradeT(nine_observe_list)
+        print('九阴观察区 ========')
     else:
         print('输入错误。。。')
 
