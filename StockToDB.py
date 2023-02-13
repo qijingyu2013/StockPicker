@@ -20,7 +20,7 @@ from utils import TOKEN
 
 # 抓取股票列表
 def fetchStockList(timestamp):
-    lists = ball.stock_list(5000)
+    lists = ball.stock_list(6000)
     # print(list)
     return lists
 
