@@ -42,12 +42,29 @@ def fetchMultiplier():
                 )
             ).order_by(
                 models.StockTrade.timestamp.desc()
-            ).limit(4).all()
+            ).limit(5).all()
             try:
                 # 筛选出第一天涨停的票
-                if len(result) == 4:
-                    if result[3].close == result[3].limit_up:
-                        count = 0
+                if len(result) == 5:
+                    count = 0
+                    # 若上一天涨停则按照上一天的规则
+                    if result[4].close == result[4].limit_up:
+                        if result[3].close == result[3].limit_up:
+                            for i in range(2, -1, -1):
+                                if result[4].close < result[i].low:
+                                    count += 1
+                                else:
+                                    break
+                                if result[i].turn_over_rate <= 10:
+                                    break
+                                if result[i].close == result[i].limit_up:
+                                    break
+                                # if result[i].high == result[i].limit_up:
+                                #     break
+                            if count == 3:
+                                ulist.append([result[3].name, result[3].code])
+
+                    elif result[3].close == result[3].limit_up:
                         for i in range(2, -1, -1):
                             # 不跌破涨停日的收盘价
                             if result[3].close < result[i].low:
