@@ -87,6 +87,20 @@ class StockTrade(Base):
     update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
 
 
+class StockDistribution(Base):
+    # """ 必须继承Base """
+    # 数据库中存储的表名
+    __tablename__ = "stock_distribution"
+    # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
+    id = Column(BigInteger, primary_key=True, autoincrement=True, comment="主键")
+    sid = Column(Integer, comment="stock_list的主键")
+    timestamp = Column(BigInteger, nullable=True, comment="交易日时间戳")
+    datas = Column(Text, nullable=True, comment="筹码分布数据")
+    delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
+    create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
+    update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
+
+
 class StockMission(Base):
     # """ 必须继承Base """
     # 数据库中存储的表名
@@ -94,7 +108,7 @@ class StockMission(Base):
     # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
     id = Column(Integer, primary_key=True, autoincrement=True, comment="主键")
     timestamp = Column(BigInteger, nullable=True, comment="时间戳")  # 时间戳
-    type = Column(Integer, comment="任务类型 1=涨停后4天不破位 2=9日阴 3=9周阴 4=9月阴")
+    type = Column(Integer, comment="任务类型 1=倍量 2=9日阴 3=9周阴 4=9月阴 5=放量 6=底部筹码")
     content = Column(Text, nullable=True, comment="执行结果")
     delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
     create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")

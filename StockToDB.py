@@ -8,6 +8,7 @@
 # 2.2 筛选出4天后不跌破涨停开盘价的票
 
 import datetime
+import json
 import time
 from enum import Enum
 
@@ -15,6 +16,7 @@ from sqlalchemy import and_
 
 import models
 import pysnowball as ball
+import jfzt
 from utils import TOKEN
 
 
@@ -146,7 +148,41 @@ def updateResult(result, item):
     return result
 
 
-# 保存行情信息
+# 保存行情信息(日)
+def saveStockDistributionDaily(stock_id, data):
+    try:
+        handle = models.session.query(
+            models.StockDistribution
+        ).filter(
+            and_(
+                models.StockDistribution.sid == stock_id,
+                )
+        )
+        result = handle.one_or_none()
+        if result is not None:
+            handle.update({
+                'datas': json.dumps(data['items'], indent=2),
+                'timestamp': data['tradeDate']
+            })
+        else:
+            stock_distribution_instance = models.StockDistribution(
+                sid=stock_id,  # stock_list的主键
+                timestamp=data['tradeDate'],  # 交易日时间戳
+                datas=json.dumps(data['items'], indent=2),  # 分布数据
+            )
+            models.session.add(stock_distribution_instance)
+        # 提交
+        models.session.commit()
+    except IndexError as e:
+        print("this is a IndexError:", e)
+    except KeyError as e:
+        print("this is a KeyError:", e)
+
+    return
+
+
+
+# 保存行情信息(日)
 def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
     for item in data_daily:
         try:
@@ -195,7 +231,7 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
     return
 
 
-# 保存行情信息
+# 保存行情信息(周)
 def saveStockTradeWeekly(stock_id, stock_code, stock_name, data_weekly):
     for item in data_weekly:
         try:
@@ -235,7 +271,7 @@ def saveStockTradeWeekly(stock_id, stock_code, stock_name, data_weekly):
     return
 
 
-# 保存行情信息
+# 保存行情信息(月)
 def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
     for item in data_monthly:
         try:
@@ -287,6 +323,8 @@ def upgradeStockTrade(timestamp, period='all'):
                 # 抓取日行情
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+                distrubition_data_daily = jfzt.fetchDistrubitionData(item[2], item[1])
+                saveStockDistributionDaily(item[0], distrubition_data_daily)
             elif period == 'weekly':
                 # 抓取周行情
                 data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']

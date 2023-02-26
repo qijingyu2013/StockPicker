@@ -62,3 +62,6 @@ kline_list_url = "https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol="
 stock_list_url = "https://xueqiu.com/service/v5/stock/screener/quote/list?order=asc&orderby=code&order_by=symbol&market=CN&type=sh_sz"
 
 debenture_list_url = "https://xueqiu.com/service/v5/stock/screener/quote/list?page=1&size=60&order=asc&orderby=percent&order_by=percent&exchange=CN&market=CN&industry=可转债&type=convert&_=1652862532254"
+
+# jfzt
+distrubition_url = "https://api-hq.chongnengjihua.com/capital/api/1/index/chip/list?symbol={}&market={}&startTime={}&powerType=1"

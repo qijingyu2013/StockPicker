@@ -5,6 +5,18 @@ import time
 XQ_A_TOKEN = '030889433953bf4bf15985d7a13b442abad75180'
 TOKEN = 'xq_a_token={};'.format(XQ_A_TOKEN)
 
+
+# 当前时间
+def nowTime():
+    current = datetime.datetime.now()
+    un_time = time.mktime(current.timetuple())
+    current = datetime.datetime.now()
+    # 打印当前时间
+    print("当前时间 :", current)
+    return round(un_time)
+
+
+# （雪球网专用）
 def currentTime():
     current = datetime.datetime.now()
     # 打印当前时间
@@ -25,6 +37,7 @@ def currentTime():
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
 
+
 def zeroTime():
     current = datetime.datetime.now()
     # 打印当前时间
@@ -33,8 +46,9 @@ def zeroTime():
     dt = str(today) + ' 00:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
-    print(round(timestamp*1000))
+    print(round(timestamp * 1000))
     return round(timestamp * 1000)
+
 
 def customizeTime(offset=9):
     today = datetime.date.today()
@@ -45,6 +59,7 @@ def customizeTime(offset=9):
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
 
+
 def printOptimizedForm(lists, limit=0):
     lists_len = len(lists)
     single_template = "\r{0:>4}"
@@ -52,7 +67,7 @@ def printOptimizedForm(lists, limit=0):
     for i in range(lists_len):
         u = lists[i]
         if limit == 0:
-            print(single_template.format("\'"+u[1]+"\',  # " + u[0], chr(12288)))
+            print(single_template.format("\'" + u[1] + "\',  # " + u[0], chr(12288)))
         else:
             if u[2] >= limit:
-                print(single_template.format("\'"+u[1]+"\',  # " + u[0], chr(12288)))
+                print(single_template.format("\'" + u[1] + "\',  # " + u[0], chr(12288)))

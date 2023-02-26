@@ -69,7 +69,7 @@ def fetch_csindex(url):
                "Accept-Encoding": "gzip, deflate, br",
                "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,cy;q=0.6"}
     response = requests.get(url, headers=HEADERS)
-    
+
     # print(url)
     # print(HEADERS)
     # print(response)
@@ -101,10 +101,10 @@ def fetch_hkc(url, txt_date=None):
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
-    
+
     requests.packages.urllib3.disable_warnings()
     response = requests.post(url, headers=headers, data=payload, verify=False)
-    
+
     # print(url)
     # print(response)
     # print(response.content)
@@ -112,3 +112,20 @@ def fetch_hkc(url, txt_date=None):
     if response.status_code != 200:
         raise Exception(response.content)
     return response.content
+
+
+def fetch_9fzt_distribution(url):
+    header = {'content-type': 'application/json; charset=utf-8',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'}
+    response = requests.get(url, headers=header)
+
+    if response.status_code != 200:
+        raise Exception(response.content)
+
+    json_data = response.json()
+
+    if json_data['code'] != 1:
+        print(json_data['message'])
+        raise Exception(response.content)
+
+    return json_data['data']

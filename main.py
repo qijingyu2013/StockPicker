@@ -1,6 +1,7 @@
 # 主文件
 
 import pysnowball as ball
+from Distribution import fetchBottom
 from Multiplier import fetchMultiplier
 from NineYin import nineDailyData, nineMonthlyData, nineWeeklyData
 from ReleaseVolume import fetchReleaseVolume
@@ -26,8 +27,9 @@ def main():
     print('[2] 保存并且更新股票行情')
     print('[3] 全量更新')
     print('[4] 获取连日阴票(9)')
-    print('[5] 获取连周阴票(10)')
-    print('[6] 获取连月阴票(11)')
+    print('[5] 获取底部票')
+    # print('[5] 获取连周阴票(10)')
+    # print('[6] 获取连月阴票(11)')
     print('[7] 获取倍量票')
     print('[8] 获取放量票')
     print('[9] 预测第二天交易信息')
@@ -56,23 +58,26 @@ def main():
         else:
             nineDailyData(count)
     elif s == 5:
-        print('输入连阴次数:')
-        count = int(input())
-        if count <= 6:
-            nineWeeklyData(6)
-        elif count >= 10:
-            nineWeeklyData(10)
-        else:
-            nineWeeklyData(count)
-    elif s == 6:
-        print('输入连阴次数:')
-        count = int(input())
-        if count <= 7:
-            nineMonthlyData(7)
-        elif count >= 11:
-            nineMonthlyData(11)
-        else:
-            nineMonthlyData(count)
+        fetchBottom()
+
+    # elif s == 5:
+    #     print('输入连阴次数:')
+    #     count = int(input())
+    #     if count <= 6:
+    #         nineWeeklyData(6)
+    #     elif count >= 10:
+    #         nineWeeklyData(10)
+    #     else:
+    #         nineWeeklyData(count)
+    # elif s == 6:
+    #     print('输入连阴次数:')
+    #     count = int(input())
+    #     if count <= 7:
+    #         nineMonthlyData(7)
+    #     elif count >= 11:
+    #         nineMonthlyData(11)
+    #     else:
+    #         nineMonthlyData(count)
     elif s == 7:
         fetchMultiplier()
     elif s == 8:
@@ -100,13 +105,20 @@ def main():
         ];
         # 持仓区
         trade_list = [
-            '600446',
-            '002142',
-            '600050',
+            '600446',  # 金证股份
+            '002728',  # 特一药业
+            '300769',  # 德方纳米
+            '603530',  # 神马电力
+            '600095',  # 湘财
         ];
         # 观察区
         observe_list = [
-            '603656'
+            '002324',  # 普利特
+            '002524',  # 光正眼科
+            '002706',  # 良信股份
+            '002731',  # 萃华珠宝
+            '601021',  # 春秋航空
+            '603500',  # 祥和实业
         ];
         # list = ['000554']
         print('固定位 ============')

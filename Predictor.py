@@ -195,26 +195,17 @@ def tradeT(lists):
         # print(coefficient)
         # sell = data[0].close * (1 + high) * (1 + coefficient[0] / 10000)
         # buy = data[0].close * (1 - low) * (1 - coefficient[1] / 10000)
+
+        # 卖出价
         sell = data[0].close * (1 + high)
+        # 卖出价 下方筹码比重
+        # 买入价
         buy = data[0].close * (1 - low)
+        # 买入价 上方筹码比重
+
         # print("当天收盘价:", data[0].close)
         # print("当天均价:", round(avg, 2))
-        # 卖出价格 前一日的收盘价 * （100 +（高于均线+0.5+2）/100 或者低于均线时取均线价格
-        # if item == '300581':
-        #     # 晨曦航空用
-        #     sell = data[0].close * (1 + high*0.47)
-        #     buy = data[0].close * (1 - low*0.35)
-        # elif item == '000930':
-        #     # 中粮科技用
-        #     sell = data[0].close * (1 + high*0.29)
-        #     buy = data[0].close * (1 - low*0.28)
-        # elif item == '300077':
-        #     # 国民技术用
-        #     sell = data[0].close * (1 + high*0.18)
-        #     buy = data[0].close * (1 - low*0.31)
-        # elif item == '600893':
-        #     sell = data[0].close * (1 + high*0.21)
-        #     buy = data[0].close * (1 - low*0.37)
+
         print("今日收盘:", data[0].close)
         print("明日卖点:", round(sell, 2))
         print("明日买点:", round(buy, 2))
