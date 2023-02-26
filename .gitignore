@@ -1,3 +1,5 @@
 
 *.pyc
 config.py
+lesson/interest.py
+lesson/weibo.py
