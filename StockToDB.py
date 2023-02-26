@@ -375,7 +375,7 @@ def upgradeStockTrade(timestamp, period='all'):
         except KeyError as e:
             print("\rthis is a KeyError:", e)
             print(item[0], item[2], item[3])
-        time.sleep(0.5)
+        time.sleep(0.1)
         handle += 1
         percent = handle / length_total
         surplus = round((length_total - handle) * 1.52, 1)

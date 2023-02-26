@@ -76,6 +76,8 @@ def fetchBottom():
 
                             rate = low_total / all_total
                             if rate < 0.00001:
+                                # print('低位筹码数：', low_total)
+                                # print('总筹码数：', all_total)
                                 ulist.append([result[3].name, result[3].code, rate])
 
 
