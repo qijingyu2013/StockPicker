@@ -13,8 +13,7 @@ import json
 from sqlalchemy import and_
 import models
 from StockToDB import fetchStockListFromDB, StockType, saveStockMission
-import pysnowball as ball
-from utils import currentTime, zeroTime, printOptimizedForm
+from utils import zeroTime, printOptimizedForm
 
 
 # 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)
@@ -75,12 +74,8 @@ def fetchBottom():
                                     low_total += data['volume'] * data['price'] * 100
 
                             rate = low_total / all_total
-                            if rate < 0.00001:
-                                # print('低位筹码数：', low_total)
-                                # print('总筹码数：', all_total)
-                                ulist.append([result[3].name, result[3].code, rate])
-
-
+                            if rate < 0.01:
+                                ulist.append([result[3].name, result[3].code, round(rate * 100, 2)])
             except IndexError as e:
                 print("this is a IndexError:", e)
                 print(result)
@@ -88,7 +83,7 @@ def fetchBottom():
             percent = handle / length_total
             surplus = round((length_total - handle) * 0.005, 1)
             print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
-        # saveStockMission(zero, 1, str(ulist))
+        saveStockMission(zero, 6, str(ulist))
     else:
         ulist = eval(mission.content)
     printUnivList(ulist)
@@ -97,8 +92,8 @@ def fetchBottom():
 
 def printUnivList(ulist):
     if len(ulist) > 0:
-        tplt = "\r{0:>4}\t{1:<}\t{2:>}"
-        print(tplt.format("序号", "股票名称", "股票代码", chr(12288)))
+        tplt = "\r{0:>4}\t{1:<}\t{2:>}\t{3:>}"
+        print(tplt.format("序号", "股票名称", "股票代码", "分布占比", chr(12288)))
         for i in range(len(ulist)):
             u = ulist[i]
             print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
@@ -108,9 +103,8 @@ def printUnivList(ulist):
     else:
         print("今天没有符合规则的票哦！")
 
+def main():
+    fetchBottom()
 
-# def main():
-#     # fetchBottom()
-#
-#
-# main()
+
+main()
