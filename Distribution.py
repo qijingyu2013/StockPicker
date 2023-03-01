@@ -3,7 +3,7 @@
 # 1. 比股价低而且筹码集中的票
 # 1.1 抓取股票信息
 # 1.2 抓取当日交易信息
-# 1.3 筛选出最近五天没有涨停过且5天的幅度都小于3%的票
+# 1.3 筛选出最近五天没有涨停过且5天的幅度都小于3%的票，且当日成交额大于1亿
 # 1.4 抓取当日筹码分布信息
 # 1.5 统计总筹码数以及比股价低的筹码数
 # 1.6 筛选比股价低的筹码数占比总筹码数的10%的股票
@@ -44,7 +44,7 @@ def fetchBottom():
                 models.StockTrade.timestamp.desc()
             ).limit(5).all()
             try:
-                # 筛选出最近五天没有涨停过 且5天的幅度都小于3%的票 换手率大于5%
+                # 筛选出最近五天没有涨停过 且5天的幅度都小于3%的票 换手率大于5% 且当日成交额大于1亿
                 if len(result) == 5:
                     count = 0
                     for i in range(3, -1, -1):
@@ -53,6 +53,8 @@ def fetchBottom():
                         if result[i].turn_over_rate >= 5:
                             break
                         if abs(result[i].percent) >= 3:
+                            break
+                        if result[i].amount < 100000000:
                             break
                         count += 1
                     if count == 4:
@@ -103,8 +105,8 @@ def printUnivList(ulist):
     else:
         print("今天没有符合规则的票哦！")
 
-def main():
-    fetchBottom()
-
-
-main()
+# def main():
+#     fetchBottom()
+#
+#
+# main()
