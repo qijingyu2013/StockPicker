@@ -94,7 +94,7 @@ def fetchBottom():
 
 def printUnivList(ulist):
     if len(ulist) > 0:
-        tplt = "\r{0:>4}\t{1:<}\t{2:>}\t{3:>}"
+        tplt = "\r{0:>4}\t{1:>}\t{2:>}\t{3:>}"
         print(tplt.format("序号", "股票名称", "股票代码", "分布占比", chr(12288)))
         for i in range(len(ulist)):
             u = ulist[i]
@@ -105,8 +105,8 @@ def printUnivList(ulist):
     else:
         print("今天没有符合规则的票哦！")
 
-# def main():
-#     fetchBottom()
-#
-#
-# main()
+def main():
+    fetchBottom()
+
+
+main()
