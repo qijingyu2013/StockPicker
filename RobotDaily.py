@@ -1,4 +1,5 @@
 import pysnowball as ball
+from Distribution import fetchBottom
 from Multiplier import fetchMultiplier
 from NineYin import nineDailyData
 from ReleaseVolume import fetchReleaseVolume
@@ -20,6 +21,6 @@ def main():
     nineDailyData()
     fetchMultiplier()
     fetchReleaseVolume()
-
+    fetchBottom()
 
 main()
