@@ -62,7 +62,7 @@ def fetchMultiplier():
                                 # if result[i].high == result[i].limit_up:
                                 #     break
                             if count == 3:
-                                ulist.append([result[3].name, result[3].code])
+                                ulist.append([result[3].name, result[3].code, '二板突破'])
 
                     elif result[3].close == result[3].limit_up:
                         for i in range(2, -1, -1):
@@ -84,7 +84,7 @@ def fetchMultiplier():
                             elif abs_difference > 0.1:
                                 break
                             else:
-                                ulist.append([result[3].name, result[3].code])
+                                ulist.append([result[3].name, result[3].code, '倍量'])
             except IndexError as e:
                 print("this is a IndexError:", e)
                 print(result)
@@ -101,11 +101,11 @@ def fetchMultiplier():
 
 def printUnivList(ulist):
     if len(ulist) > 0:
-        tplt = "\r{0:>4}\t{1:<}\t{2:>}"
-        print(tplt.format("序号", "股票名称", "股票代码", chr(12288)))
+        tplt = "\r{0:>4}\t{1:<}\t{2:<}\t{3:>}"
+        print(tplt.format("序号", "股票名称", "股票代码", "类型", chr(12288)))
         for i in range(len(ulist)):
             u = ulist[i]
-            print(tplt.format(i, u[0], u[1], chr(12288)))
+            print(tplt.format(i, u[0], u[1], u[2], chr(12288)))
 
         printOptimizedForm(ulist, 0)
         print('\r获取满足倍量的票,已完成！')
@@ -113,11 +113,11 @@ def printUnivList(ulist):
         print("今天没有符合规则的票哦！")
 
 
-# def main():
+def main():
 #     uinfo = []
 #     ball.set_token(TOKEN)
 #     # timestamp = currentTime()
-#     fetchMultiplier()
+    fetchMultiplier()
 #
 #
-# main()
+main()
