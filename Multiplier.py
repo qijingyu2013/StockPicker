@@ -3,7 +3,7 @@
 # 1. 每天定时自动拉取前一天股票数据
 # 1.1 抓取股票信息
 # 1.2 抓取指定日期的股票行情
-# 2. 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)  此处改为：不跌破涨停日的收盘价
+# 2. 第一天涨停成功,后面4天不跌破涨停日的收盘价
 # 2.1 找出4天前涨停成功的票
 # 2.2 筛选出4天后不跌破涨停开盘价的票
 # 2.3 后面3天涨幅不能超过5%
@@ -92,7 +92,7 @@ def fetchMultiplier():
             percent = handle / length_total
             surplus = round((length_total - handle) * 0.005, 1)
             print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
-        saveStockMission(zero, 1, str(ulist))
+        # saveStockMission(zero, 1, str(ulist))
     else:
         ulist = eval(mission.content)
     printUnivList(ulist)
@@ -113,11 +113,11 @@ def printUnivList(ulist):
         print("今天没有符合规则的票哦！")
 
 
-def main():
-#     uinfo = []
-#     ball.set_token(TOKEN)
-#     # timestamp = currentTime()
-    fetchMultiplier()
-#
-#
-main()
+# def main():
+# #     uinfo = []
+# #     ball.set_token(TOKEN)
+# #     # timestamp = currentTime()
+#     fetchMultiplier()
+# #
+# #
+# main()
