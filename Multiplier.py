@@ -92,7 +92,7 @@ def fetchMultiplier():
             percent = handle / length_total
             surplus = round((length_total - handle) * 0.005, 1)
             print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
-        # saveStockMission(zero, 1, str(ulist))
+        saveStockMission(zero, 1, str(ulist))
     else:
         ulist = eval(mission.content)
     printUnivList(ulist)
