@@ -3,9 +3,9 @@
 import pysnowball as ball
 from Distribution import fetchBottom
 from Multiplier import fetchMultiplier
-from NineYin import nineDailyData, nineMonthlyData, nineWeeklyData
+from NineYin import nineDailyData
+from Pick_KDJ_MACD_OBV import picker
 from ReleaseVolume import fetchReleaseVolume
-from Shareholder import topTenHolders, allHolders
 from StockToDB import upgradeStockList, upgradeStockTrade
 from Predictor import tradeT
 from utils import currentTime, TOKEN
@@ -18,12 +18,12 @@ def main():
     print('-----倍量票-----')
     fetchMultiplier()
     print('-----倍量票-----')
-    print('-----放量票-----')
-    fetchReleaseVolume()
-    print('-----放量票-----')
-    print('-----底部票-----')
-    fetchBottom()
-    print('-----底部票-----')
+    # print('-----放量票-----')
+    # fetchReleaseVolume()
+    # print('-----放量票-----')
+    # print('-----底部票-----')
+    # fetchBottom()
+    # print('-----底部票-----')
 
     print('###初始化执行任务')
     print('[1] 保存并且更新股票信息')
@@ -31,7 +31,7 @@ def main():
     print('[3] 全量更新')
     print('[4] 获取连日阴票(9)')
     print('[5] 获取底部票')
-    # print('[5] 获取连周阴票(10)')
+    print('[6] 获取满足技术指标的票')
     # print('[6] 获取连月阴票(11)')
     print('[7] 获取倍量票')
     print('[8] 获取放量票')
@@ -62,6 +62,8 @@ def main():
             nineDailyData(count)
     elif s == 5:
         fetchBottom()
+    elif s == 6:
+        picker()
 
     # elif s == 5:
     #     print('输入连阴次数:')
@@ -108,15 +110,16 @@ def main():
         ];
         # 持仓区
         trade_list = [
-            '603528',  # 多伦科技
-            '002324',  # 普利特
             '300769',  # 德方纳米
+            '002812',  # 恩捷股份
+            '603217',  # 元利科技
         ];
         # 观察区
         observe_list = [
-            '002812',  # 恩捷股份
-            '002112',  # 三变科技
-            '002197',  # 证通电子
+            '600072',  # 中船科技
+            '601728',  # 中国电信
+            '600050',  # 中国联通
+
         ];
         # list = ['000554']
         print('固定位 ============')

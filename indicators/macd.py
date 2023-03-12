@@ -1,8 +1,6 @@
 import talib
-from sqlalchemy import and_
-import models
-import pandas as pd
-from StockToDB import fetchStockListFromDB, StockType
+from indicators.basic import queryStockList, queryTradeList, transferDataFrame
+
 
 # 通过以下步骤计算MACD指标：
 #
@@ -14,20 +12,11 @@ from StockToDB import fetchStockListFromDB, StockType
 
 
 def fetchDatas():
-    lists = fetchStockListFromDB(StockType.HuShen, False)
-    length_total = len(lists)
-    handle = 0
+    lists = queryStockList()
     for item in lists:
-        result = models.session.query(
-            models.StockTrade
-        ).filter(
-            and_(
-                models.StockTrade.sid == item[0]
-            )
-        ).order_by(
-            models.StockTrade.timestamp.desc()
-        ).limit(365).all()
-        dif, dea, macd = calculate_macd(result)
+        trades = queryTradeList(item)
+        df = transferDataFrame(trades)
+        dif, dea, macd = calculate_macd(df)
 
         if macd > dif:
             print(f'MACD for the last day: 股票名称={item[3]}, 股票代码={item[2]}')
@@ -35,29 +24,19 @@ def fetchDatas():
             break
 
 
-def calculate_macd(datas):
-    # 将数据集转换为pandas DataFrame对象
-    df = pd.DataFrame.from_records([data.__dict__ for data in datas])
-
-    # 将timestamp列转换为日期格式
-    df['date'] = pd.to_datetime(df['timestamp'], unit='ms').dt.date
-
-    # 按日期排序
-    df = df.sort_values(by='date')
-
+def calculate_macd(df):
     # 计算 MACD
     macd, macd_signal, macd_histogram = talib.MACD(df['close'], fastperiod=12, slowperiod=26, signalperiod=9)
 
     # 获取最后一天的 MACD 数据
     last_dif = macd.iloc[-1]
     last_dea = macd_signal.iloc[-1]
-    last_macd = (last_dif-last_dea)*2
+    last_macd = (last_dif - last_dea) * 2
     # last_macd = macd_histogram.iloc[-1]
     return last_dif, last_dea, last_macd
 
-
-def main():
-    fetchDatas()
-
-
-main()
+# def main():
+#     fetchDatas()
+#
+#
+# main()

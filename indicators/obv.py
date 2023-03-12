@@ -1,9 +1,5 @@
 import numpy as np
 import talib
-from sqlalchemy import and_
-import models
-import pandas as pd
-from StockToDB import fetchStockListFromDB, StockType
 
 
 # 通过以下步骤计算MACD指标：
@@ -13,39 +9,22 @@ from StockToDB import fetchStockListFromDB, StockType
 # 计算DIF线。DIF线等于12天EMA减去26天EMA。
 # 计算9天的EMA作为MACD的信号线。
 # 计算MACD柱。MACD柱等于DIF线减去信号线。
+from indicators.basic import queryStockList, queryTradeList, transferDataFrame
 
 
 def fetchDatas():
-    lists = fetchStockListFromDB(StockType.HuShenChuang, False)
-    length_total = len(lists)
-    handle = 0
+    lists = queryStockList()
     for item in lists:
-        result = models.session.query(
-            models.StockTrade
-        ).filter(
-            and_(
-                models.StockTrade.sid == item[0]
-            )
-        ).order_by(
-            models.StockTrade.timestamp.desc()
-        ).limit(365).all()
-        last_day_obv, last_day_obv_ma, tend = calculate_obv(result)
+        trades = queryTradeList(item)
+        df = transferDataFrame(trades)
+        last_day_obv, last_day_obv_ma, tend = calculate_obv(df)
         if tend == 1:
             print(f'MACD for the last day: 股票名称={item[3]}, 股票代码={item[2]}')
             print(f"最后一天的 OBV 为：{last_day_obv}, 最后一天的 OBV_MA 为：{last_day_obv_ma}")
             break
 
 
-def calculate_obv(datas):
-    # 将数据集转换为pandas DataFrame对象
-    df = pd.DataFrame.from_records([data.__dict__ for data in datas])
-
-    # 将timestamp列转换为日期格式
-    df['date'] = pd.to_datetime(df['timestamp'], unit='ms').dt.date
-
-    # 按日期排序
-    df = df.sort_values(by='date')
-
+def calculate_obv(df):
     # 计算 obv 指标
     df['obv'] = talib.OBV(df['close'], df['volume'])
 
@@ -81,8 +60,8 @@ def calculate_obv(datas):
     return last_day_obv, last_day_obv_ma, tend
 
 
-def main():
-    fetchDatas()
-
-
-main()
+# def main():
+#     fetchDatas()
+#
+#
+# main()
