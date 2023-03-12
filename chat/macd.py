@@ -1,3 +1,4 @@
+import talib
 from sqlalchemy import and_
 import models
 import pandas as pd
@@ -25,33 +26,34 @@ def fetchDatas():
             )
         ).order_by(
             models.StockTrade.timestamp.desc()
-        ).limit(900).all()
-        last_macd = calculate_macd(result)
-        if last_macd > 0:
-            print(f'MACD for the last day: MACD={last_macd:.2f}')
+        ).limit(365).all()
+        dif, dea, macd = calculate_macd(result)
+
+        if macd > dif:
+            print(f'MACD for the last day: 股票名称={item[3]}, 股票代码={item[2]}')
+            print(f"最后一天的 MACD 数据：dif={dif}, dea={dea}, macd={macd}")
             break
 
 
 def calculate_macd(datas):
-    # 将交易数据转换为DataFrame对象
-    df = pd.DataFrame([data.__dict__ for data in datas])
+    # 将数据集转换为pandas DataFrame对象
+    df = pd.DataFrame.from_records([data.__dict__ for data in datas])
 
-    # 计算12日和26日的指数移动平均线
-    ema12 = df['close'].ewm(span=12, adjust=False).mean()
-    ema26 = df['close'].ewm(span=26, adjust=False).mean()
+    # 将timestamp列转换为日期格式
+    df['date'] = pd.to_datetime(df['timestamp'], unit='ms').dt.date
 
-    # 计算DIFF
-    diff = ema12 - ema26
+    # 按日期排序
+    df = df.sort_values(by='date')
 
-    # 计算9日的指数移动平均线
-    dea = diff.ewm(span=9, adjust=False).mean()
+    # 计算 MACD
+    macd, macd_signal, macd_histogram = talib.MACD(df['close'], fastperiod=12, slowperiod=26, signalperiod=9)
 
-    # 计算MACD指标
-    macd = 2 * (diff - dea)
-
-    # 输出最后一天的MACD值
-    last_macd = macd.iloc[-1]
-    return last_macd
+    # 获取最后一天的 MACD 数据
+    last_dif = macd.iloc[-1]
+    last_dea = macd_signal.iloc[-1]
+    last_macd = (last_dif-last_dea)*2
+    # last_macd = macd_histogram.iloc[-1]
+    return last_dif, last_dea, last_macd
 
 
 def main():
