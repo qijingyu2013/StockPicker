@@ -4,7 +4,7 @@ import pysnowball as ball
 from Distribution import fetchBottom
 from Multiplier import fetchMultiplier
 from NineYin import nineDailyData
-from Pick_KDJ_MACD_OBV import picker
+# from Pick_KDJ_MACD_OBV import picker
 from ReleaseVolume import fetchReleaseVolume
 from StockToDB import upgradeStockList, upgradeStockTrade
 from Predictor import tradeT
@@ -62,8 +62,8 @@ def main():
             nineDailyData(count)
     elif s == 5:
         fetchBottom()
-    elif s == 6:
-        picker()
+    # elif s == 6:
+        # picker()
 
     # elif s == 5:
     #     print('输入连阴次数:')
