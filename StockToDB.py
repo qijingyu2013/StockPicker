@@ -32,15 +32,20 @@ def saveStockList(data):
     lists = data['data']['list']
     for item in lists:
         try:
-            result = models.session.query(
-                models.StockList.id
+            handle = models.session.query(
+                models.StockList
             ).filter(
                 and_(
-                    models.StockList.name == item['name'],
-                    models.StockList.code == item['symbol'][-6:]
-                )
-            ).all()
-            if len(result) < 1:
+                    # models.StockList.name == item['name'],
+                    models.StockList.code == item['symbol'][-6:],
+                    )
+            )
+            result = handle.one_or_none()
+            if result is not None:
+                handle.update({
+                    'name': item['name'],
+                })
+            else:
                 stock_list_instance = models.StockList(
                     name=item['name'],  # 股票名称
                     code=item['symbol'][-6:],  # 股票代码
@@ -49,6 +54,7 @@ def saveStockList(data):
                 models.session.add(stock_list_instance)
             # 提交
             models.session.commit()
+
         except IndexError as e:
             print("this is a IndexError:", e)
         except KeyError as e:
@@ -82,6 +88,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             models.StockList.name
         ).filter(
             and_(
+                # models.StockList.id > 4244,
                 models.StockList.code < 200000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
@@ -95,6 +102,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             models.StockList.name
         ).filter(
             and_(
+                # models.StockList.id > 4244,
                 models.StockList.code >= 300000,
                 models.StockList.code < 310000,
                 models.StockList.status.in_((0, 1 if st else 0)),
@@ -341,7 +349,7 @@ def upgradeStockTrade(timestamp, period='all'):
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             elif period == '60d':
                 # 抓取日行情
-                data_daily = ball.daily(item[1] + item[2], timestamp, -60)['data']['item']
+                data_daily = ball.daily(item[1] + item[2], timestamp, -900)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
             elif period == '60w':
                 # 抓取周行情
@@ -564,14 +572,14 @@ def currentTime():
 #
 
 
-def main():
-#     # 更新60份行情数据
-    ball.set_token(TOKEN)
-    timestamp = currentTime()
-    upgradeStockTrade(timestamp, '60d')
-#     upgradeStockTrade(timestamp, '60w')
-#     upgradeStockTrade(timestamp, '60m')
-    print('执行结束。')
+# def main():
+# #     # 更新60份行情数据
+#     ball.set_token(TOKEN)
+#     timestamp = currentTime()
+#     upgradeStockTrade(timestamp, '60d')
+# #     upgradeStockTrade(timestamp, '60w')
+# #     upgradeStockTrade(timestamp, '60m')
+#     print('执行结束。')
 # 单独更新数据时使用！
 # main()
 
