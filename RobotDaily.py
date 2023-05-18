@@ -16,7 +16,7 @@ def main():
     print('[5] 获取满足放量的票')
     ball.set_token(TOKEN)
     timestamp = currentTime()
-    # upgradeStockList(timestamp)
+    upgradeStockList(timestamp)
     upgradeStockTrade(timestamp, 'daily')
     nineDailyData()
     fetchMultiplier()
