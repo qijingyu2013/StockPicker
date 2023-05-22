@@ -89,6 +89,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 # models.StockList.id > 4244,
+                ~models.StockList.name.like('%N%'),
                 models.StockList.code < 200000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
@@ -103,6 +104,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 # models.StockList.id > 4244,
+                ~models.StockList.name.like('%N%'),
                 models.StockList.code >= 300000,
                 models.StockList.code < 310000,
                 models.StockList.status.in_((0, 1 if st else 0)),
@@ -117,6 +119,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             models.StockList.name
         ).filter(
             and_(
+                ~models.StockList.name.like('%N%'),
                 models.StockList.code >= 600000,
                 models.StockList.code < 688000,
                 models.StockList.status.in_((0, 1 if st else 0)),
@@ -321,7 +324,7 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
 
 # 更新股票行情
 def upgradeStockTrade(timestamp, period='all'):
-    lists = fetchStockListFromDB(StockType.HuShenChuang)
+    lists = fetchStockListFromDB(StockType.HuShenChuang, False)
     length_total = len(lists)
     handle = 0
     # 保存行情信息
@@ -331,6 +334,7 @@ def upgradeStockTrade(timestamp, period='all'):
                 # 抓取日行情
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+                # print(item[2], item[1])
                 distrubition_data_daily = jfzt.fetchDistrubitionData(item[2], item[1])
                 saveStockDistributionDaily(item[0], distrubition_data_daily)
             elif period == 'weekly':
