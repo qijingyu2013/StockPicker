@@ -12,7 +12,7 @@ import json
 import time
 from enum import Enum
 
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 import models
 import pysnowball as ball
@@ -89,10 +89,14 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 # models.StockList.id > 4244,
-                ~models.StockList.name.like('%N%'),
                 models.StockList.code < 200000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
+            ),
+            or_(
+                ~models.StockList.name.like('%N%'),
+                ~models.StockList.name.like('%退%'),
+                ~models.StockList.name.like('%退市%'),
             )
         ).all()
         # 创业板
@@ -104,11 +108,15 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 # models.StockList.id > 4244,
-                ~models.StockList.name.like('%N%'),
                 models.StockList.code >= 300000,
                 models.StockList.code < 310000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
+            ),
+            or_(
+                ~models.StockList.name.like('%N%'),
+                ~models.StockList.name.like('%退%'),
+                ~models.StockList.name.like('%退市%'),
             )
         ).all()
         # 沪
@@ -119,11 +127,15 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             models.StockList.name
         ).filter(
             and_(
-                ~models.StockList.name.like('%N%'),
                 models.StockList.code >= 600000,
                 models.StockList.code < 688000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
+            ),
+            or_(
+                ~models.StockList.name.like('%N%'),
+                ~models.StockList.name.like('%退%'),
+                ~models.StockList.name.like('%退市%'),
             )
         ).all()
 
