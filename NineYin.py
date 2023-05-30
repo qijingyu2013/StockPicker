@@ -118,11 +118,12 @@ def printUnivList(lists, limit, period):
             print(template.format("序号", "股票名称", "股票代码", "连周阴次数", chr(12288)))
         elif period == 'monthly':
             print(template.format("序号", "股票名称", "股票代码", "连月阴次数", chr(12288)))
-
+        order_number = 0
         for i in range(lists_len):
             u = lists[i]
             if u[2] >= limit:
-                print(template.format(i+1, u[0], u[1], u[2], chr(12288)))
+                order_number += 1
+                print(template.format(order_number, u[0], u[1], u[2], chr(12288)))
 
         printOptimizedForm(lists, limit)
     else:
