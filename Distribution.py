@@ -38,9 +38,9 @@ def fetchBottom(price, symbols, symbol_type):
     today_ratio = (today_total-yesterday_total)/yesterday_total*100
     yesterday_ratio = (yesterday_total-before_yesterday_total)/before_yesterday_total*100
     before_yesterday_ratio = (before_yesterday_total-three_days_ago_items_total)/three_days_ago_items_total*100
-    print(f'前日低于当前价位:{price}的筹码变化率:{round(today_ratio, 2)}% 统计数量:{today_total}')
+    print(f'今日低于当前价位:{price}的筹码变化率:{round(today_ratio, 2)}% 统计数量:{today_total}')
     print(f'昨日低于当前价位:{price}的筹码变化率:{round(yesterday_ratio, 2)}% 统计数量:{yesterday_total}')
-    print(f'今日低于当前价位:{price}的筹码变化率:{round(before_yesterday_ratio, 2)}% 统计数量:{before_yesterday_total}')
+    print(f'前日低于当前价位:{price}的筹码变化率:{round(before_yesterday_ratio, 2)}% 统计数量:{before_yesterday_total}')
 
 
 # 1. 比股价低而且筹码集中的票
