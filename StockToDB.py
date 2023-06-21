@@ -158,7 +158,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
     return result
 
 
-def updateResult(result, item):
+def updateTradeData(result, item):
     result.volume = item[1]
     result.open = item[2],  # 开盘价
     result.high = item[3],  # 最高价
@@ -172,37 +172,70 @@ def updateResult(result, item):
 
 
 # 保存行情信息(日)
-def saveStockDistributionDaily(stock_id, data):
+# 只保留14条
+# stock_id sid
+# stock_code 股票代码
+# stock_name 股票名称
+# data 筹码分布数据
+def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, period):
+    # 处理周期
+    length = len(distribution_data)
+    if period == 'daily':
+        stop = length - 1 - 1
+    elif period == '14d':
+        stop = length - 14 - 1
+    else:
+        stop = length - 1 - 1
+
     try:
-        handle = models.session.query(
+        for i in range(length-1, stop, -1):
+            handle = models.session.query(
+                models.StockDistribution
+            ).filter(
+                and_(
+                    models.StockDistribution.sid == stock_id,
+                    models.StockDistribution.timestamp == distribution_data[i]['tradeDate']  # 交易日时间戳
+                )
+            )
+            result = handle.one_or_none()
+            if result is not None:
+                handle.update({
+                    'datas': json.dumps(distribution_data[i]['items'], indent=2)
+                })
+            else:
+                stock_distribution_instance = models.StockDistribution(
+                    sid=stock_id,  # stock_list的主键
+                    code=stock_code,  # 股票代码
+                    name=stock_name,  # 股票名称
+                    timestamp=distribution_data[i]['tradeDate'],  # 交易日时间戳
+                    datas=json.dumps(distribution_data[i]['items'], indent=2),  # 分布数据
+                )
+                models.session.add(stock_distribution_instance)
+
+        # 删除多余数据
+        query_for_delete_handle = models.session.query(
             models.StockDistribution
         ).filter(
             and_(
                 models.StockDistribution.sid == stock_id,
-                )
-        )
-        result = handle.one_or_none()
-        if result is not None:
-            handle.update({
-                'datas': json.dumps(data['items'], indent=2),
-                'timestamp': data['tradeDate']
-            })
-        else:
-            stock_distribution_instance = models.StockDistribution(
-                sid=stock_id,  # stock_list的主键
-                timestamp=data['tradeDate'],  # 交易日时间戳
-                datas=json.dumps(data['items'], indent=2),  # 分布数据
             )
-            models.session.add(stock_distribution_instance)
+        ).order_by(
+            models.StockDistribution.timestamp.asc()
+        )
+        query_for_delete_result_all = query_for_delete_handle.all()
+        if len(query_for_delete_result_all) > 14:
+            query_for_delete_result_old = query_for_delete_handle.first()
+            models.session.delete(query_for_delete_result_old)
+
         # 提交
         models.session.commit()
+
     except IndexError as e:
         print("this is a IndexError:", e)
     except KeyError as e:
         print("this is a KeyError:", e)
 
     return
-
 
 
 # 保存行情信息(日)
@@ -218,7 +251,7 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
                 )
             ).one_or_none()
             if result is not None:
-                updateResult(result, item)
+                updateTradeData(result, item)
             else:
                 # 涨停价&跌停价
                 if stock_code[0:1] == '3':
@@ -267,7 +300,7 @@ def saveStockTradeWeekly(stock_id, stock_code, stock_name, data_weekly):
                 )
             ).one_or_none()
             if result is not None:
-                updateResult(result, item)
+                updateTradeData(result, item)
             else:
                 stock_trade_instance = models.StockTradeWeekly(
                     sid=stock_id,  # stock_list的主键
@@ -307,7 +340,7 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
                 )
             ).one_or_none()
             if result is not None:
-                updateResult(result, item)
+                updateTradeData(result, item)
             else:
                 stock_trade_instance = models.StockTradeMonthly(
                     sid=stock_id,  # stock_list的主键
@@ -337,6 +370,7 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
 # 更新股票行情
 def upgradeStockTrade(timestamp, period='all'):
     lists = fetchStockListFromDB(StockType.HuShenChuang, False)
+    # print(lists)
     length_total = len(lists)
     handle = 0
     # 保存行情信息
@@ -344,11 +378,11 @@ def upgradeStockTrade(timestamp, period='all'):
         try:
             if period == 'daily':
                 # 抓取日行情
+                print(item[2], item[1])
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
-                # print(item[2], item[1])
-                distrubition_data_daily = jfzt.fetchDistrubitionData(item[2], item[1])
-                saveStockDistributionDaily(item[0], distrubition_data_daily)
+                distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
+                saveStockDistribution(item[0], item[1], item[2], distribution_data, period)
             elif period == 'weekly':
                 # 抓取周行情
                 data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
@@ -364,9 +398,12 @@ def upgradeStockTrade(timestamp, period='all'):
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             elif period == '60d':
-                # 抓取日行情
+                # 抓取60日行情
                 data_daily = ball.daily(item[1] + item[2], timestamp, -900)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+                distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
+                # 此处特殊处理，只保留14天数据
+                saveStockDistribution(item[0], item[2], item[3], distribution_data, '14d')
             elif period == '60w':
                 # 抓取周行情
                 data_weekly = ball.weekly(item[1] + item[2], timestamp, -60)['data']['item']
@@ -399,7 +436,7 @@ def upgradeStockTrade(timestamp, period='all'):
         except KeyError as e:
             print("\rthis is a KeyError:", e)
             print(item[0], item[2], item[3])
-        time.sleep(0.1)
+        # time.sleep(0.1)
         handle += 1
         percent = handle / length_total
         surplus = round((length_total - handle) * 1.52, 1)
@@ -589,14 +626,14 @@ def currentTime():
 
 
 # def main():
-# #     # 更新60份行情数据
+#     # 更新60份行情数据
 #     ball.set_token(TOKEN)
 #     timestamp = currentTime()
 #     upgradeStockTrade(timestamp, '60d')
 # #     upgradeStockTrade(timestamp, '60w')
 # #     upgradeStockTrade(timestamp, '60m')
 #     print('执行结束。')
-# 单独更新数据时使用！
+# # 单独更新数据时使用！
 # main()
 
 # 加 st 状态

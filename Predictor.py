@@ -10,6 +10,7 @@
 from sqlalchemy import and_
 
 import models
+from Distribution import fetchBottom
 
 
 def fetchTradeData(code, num=30):
@@ -22,7 +23,7 @@ def fetchTradeData(code, num=30):
         )
     ).order_by(
         models.StockTrade.timestamp.desc()
-    ).limit(num+1).all()
+    ).limit(num + 1).all()
 
 
 def fetchTradeDataAll(code):
@@ -209,6 +210,7 @@ def tradeT(lists):
         print("今日收盘:", data[0].close)
         print("明日卖点:", round(sell, 2))
         print("明日买点:", round(buy, 2))
+        fetchBottom(data[0].close, item, int(item) > 600000 and "sh" or "sz")
         print("<<<<<<<<<<<<<<<<<<<")
         # sell = data[0].close * (1 + high*0.33)
         # if sell < avg:

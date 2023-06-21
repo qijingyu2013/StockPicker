@@ -6,8 +6,8 @@ def fetchDistrubitionData(symbols, symbol_type):
     today = nowTime()
     url = api_ref.distrubition_url.format(symbols, symbol_type.lower(), today)
     data = utls.fetch_9fzt_distribution(url)
-    length = len(data)
-    return data[length-1]
+    # length = len(data)
+    return data
 
 
 # def main():

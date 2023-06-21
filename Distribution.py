@@ -1,4 +1,47 @@
 # 筹码分布
+import json
+
+from sqlalchemy import and_
+
+import jfzt
+import models
+from StockToDB import fetchStockListFromDB, StockType, saveStockMission
+from utils import zeroTime, printOptimizedForm
+
+
+# 查当前价格下
+# 最近3天的筹码变化情况
+def fetchBottom(price, symbols, symbol_type):
+    distribution_data = jfzt.fetchDistrubitionData(symbols, symbol_type)
+    length = len(distribution_data)
+    today_items = distribution_data[length-1]['items']
+    yesterday_items = distribution_data[length-2]['items']
+    before_yesterday_items = distribution_data[length-3]['items']
+    three_days_ago_items = distribution_data[length-4]['items']
+    today_total = 0
+    yesterday_total = 0
+    before_yesterday_total = 0
+    three_days_ago_items_total = 0
+    for data in today_items:
+        if price >= data['price']:
+            today_total += data['volume']
+    for data in yesterday_items:
+        if price >= data['price']:
+            yesterday_total += data['volume']
+    for data in before_yesterday_items:
+        if price >= data['price']:
+            before_yesterday_total += data['volume']
+    for data in three_days_ago_items:
+        if price >= data['price']:
+            three_days_ago_items_total += data['volume']
+
+    today_ratio = (today_total-yesterday_total)/yesterday_total*100
+    yesterday_ratio = (yesterday_total-before_yesterday_total)/before_yesterday_total*100
+    before_yesterday_ratio = (before_yesterday_total-three_days_ago_items_total)/three_days_ago_items_total*100
+    print(f'前日低于当前价位:{price}的筹码变化率:{round(today_ratio, 2)}% 统计数量:{today_total}')
+    print(f'昨日低于当前价位:{price}的筹码变化率:{round(yesterday_ratio, 2)}% 统计数量:{yesterday_total}')
+    print(f'今日低于当前价位:{price}的筹码变化率:{round(before_yesterday_ratio, 2)}% 统计数量:{before_yesterday_total}')
+
 
 # 1. 比股价低而且筹码集中的票
 # 1.1 抓取股票信息
@@ -8,17 +51,9 @@
 # 1.5 统计总筹码数以及比股价低的筹码数
 # 1.6 筛选比股价低的筹码数占比总筹码数的10%的股票
 # 1.7 筛选比股价低而且筹码集中的票
-import json
-
-from sqlalchemy import and_
-import models
-from StockToDB import fetchStockListFromDB, StockType, saveStockMission
-from utils import zeroTime, printOptimizedForm
-
-
 # 第一天涨停成功,后面4天不破涨停的阳线(不跌破涨停的开盘价)
 # 3天涨幅不超过10%，跌幅不超过5%，每天换手率10
-def fetchBottom():
+def fetchBottomStrategy():
     ulist = []
     zero = zeroTime()
     mission = models.session.query(
@@ -64,6 +99,7 @@ def fetchBottom():
                         ).filter(
                             and_(
                                 models.StockDistribution.sid == result[0].sid,
+                                models.StockDistribution.timestamp == zero,
                             )
                         ).one_or_none()
                         if distribution is not None:
@@ -78,6 +114,8 @@ def fetchBottom():
                             rate = low_total / all_total
                             if rate < 0.01:
                                 ulist.append([result[3].name, result[3].code, round(rate * 100, 2)])
+                            # elif rate > 0.99:
+                            #     ulist.append([result[3].name, result[3].code, round(rate * 100, 2)])
             except IndexError as e:
                 print("this is a IndexError:", e)
                 print(result)
@@ -90,6 +128,8 @@ def fetchBottom():
         ulist = eval(mission.content)
     printUnivList(ulist)
     return
+
+# 当前价格上下5%浮动范围内筹码总数 占总筹码90%以上
 
 
 def printUnivList(ulist):
@@ -106,7 +146,7 @@ def printUnivList(ulist):
         print("今天没有符合规则的票哦！")
 
 # def main():
-#     fetchBottom()
+#     fetchBottom('000001', '', )
 #
 #
 # main()
