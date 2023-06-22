@@ -9,6 +9,7 @@
 
 import datetime
 import json
+import threading
 import time
 from enum import Enum
 
@@ -38,7 +39,7 @@ def saveStockList(data):
                 and_(
                     # models.StockList.name == item['name'],
                     models.StockList.code == item['symbol'][-6:],
-                    )
+                )
             )
             result = handle.one_or_none()
             if result is not None:
@@ -89,6 +90,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 # models.StockList.id > 4244,
+                # models.StockList.code >= 2956,
                 models.StockList.code < 200000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
@@ -147,6 +149,8 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             result = sh
         elif type == StockType.Shen:
             result = sz
+        elif type == StockType.Chuang:
+            result = cy
         else:
             result = sz + cy + sh
 
@@ -188,7 +192,7 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
         stop = length - 1 - 1
 
     try:
-        for i in range(length-1, stop, -1):
+        for i in range(length - 1, stop, -1):
             handle = models.session.query(
                 models.StockDistribution
             ).filter(
@@ -367,9 +371,26 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
     return
 
 
-# 更新股票行情
+# 更新股票行情(多线程）
 def upgradeStockTrade(timestamp, period='all'):
-    lists = fetchStockListFromDB(StockType.HuShenChuang, False)
+    thread_hu = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Hu,))
+    thread_shen = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Shen,))
+    thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Chuang,))
+
+    thread_hu.start()
+    thread_shen.start()
+    thread_cy.start()
+
+    thread_hu.join()
+    thread_shen.join()
+    thread_cy.join()
+
+    return
+
+
+# 更新股票行情
+def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType.Hu):
+    lists = fetchStockListFromDB(stock_type, False)
     # print(lists)
     length_total = len(lists)
     handle = 0
@@ -378,11 +399,11 @@ def upgradeStockTrade(timestamp, period='all'):
         try:
             if period == 'daily':
                 # 抓取日行情
-                print(item[2], item[1])
+                # print(item[2], item[1])
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
-                saveStockDistribution(item[0], item[1], item[2], distribution_data, period)
+                saveStockDistribution(item[0], item[2], item[3], distribution_data, period)
             elif period == 'weekly':
                 # 抓取周行情
                 data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
@@ -436,11 +457,11 @@ def upgradeStockTrade(timestamp, period='all'):
         except KeyError as e:
             print("\rthis is a KeyError:", e)
             print(item[0], item[2], item[3])
-        # time.sleep(0.1)
+        time.sleep(0.1)
         handle += 1
         percent = handle / length_total
-        surplus = round((length_total - handle) * 1.52, 1)
-        print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(percent, surplus), end='', flush=True)
+        surplus = round((length_total - handle) * 13, 1)
+        print('\r完成度为: {:.2%}, 还剩余: {}, 剩余: {}秒'.format(percent, length_total - handle, surplus), end='', flush=True)
 
     return
 
@@ -521,7 +542,7 @@ def saveStockMission(timestamp, type, ulist):
 def currentTime():
     current = datetime.datetime.now()
     # 打印当前时间
-    print("当前时间 :", current)
+    # print("当前时间 :", current)
 
     year = datetime.datetime.now().year
     month = datetime.datetime.now().month
@@ -625,15 +646,28 @@ def currentTime():
 #
 
 
-# def main():
-#     # 更新60份行情数据
-#     ball.set_token(TOKEN)
-#     timestamp = currentTime()
-#     upgradeStockTrade(timestamp, '60d')
-# #     upgradeStockTrade(timestamp, '60w')
-# #     upgradeStockTrade(timestamp, '60m')
-#     print('执行结束。')
-# # 单独更新数据时使用！
+def main():
+    # 更新60份行情数据
+    ball.set_token(TOKEN)
+    timestamp = currentTime()
+    # upgradeStockTrade(timestamp, '60d')
+    #     upgradeStockTrade(timestamp, '60w')
+    #     upgradeStockTrade(timestamp, '60m')
+
+    thread_hu = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Hu,))
+    thread_shen = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Shen,))
+    thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Chuang,))
+
+    thread_hu.start()
+    thread_shen.start()
+    thread_cy.start()
+    thread_hu.join()
+    thread_shen.join()
+    thread_cy.join()
+    print('执行结束。')
+
+
+# 单独更新数据时使用！
 # main()
 
 # 加 st 状态

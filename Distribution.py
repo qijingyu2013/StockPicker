@@ -144,9 +144,3 @@ def printUnivList(ulist):
         print('\r获取满足倍量的票,已完成！')
     else:
         print("今天没有符合规则的票哦！")
-
-# def main():
-#     fetchBottom('000001', '', )
-#
-#
-# main()
