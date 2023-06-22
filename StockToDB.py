@@ -645,11 +645,18 @@ def currentTime():
 #
 #
 
+# 加 st 状态
+# select * from stock_list WHERE `name` LIKE '%st%'
+# UPDATE stock_list SET `status` = 1 WHERE `name` LIKE '%st%'
+# select * from stock_list WHERE `name` LIKE '%退%'
+# UPDATE stock_list SET `status` = 2 , `delete`=1 WHERE `name` LIKE '%退%'
+
 
 def main():
     # 更新60份行情数据
     ball.set_token(TOKEN)
     timestamp = currentTime()
+    # upgradeStockTradeWithStockType(timestamp, '60d', StockType.Hu)
     # upgradeStockTrade(timestamp, '60d')
     #     upgradeStockTrade(timestamp, '60w')
     #     upgradeStockTrade(timestamp, '60m')
@@ -669,12 +676,6 @@ def main():
 
 # 单独更新数据时使用！
 # main()
-
-# 加 st 状态
-# select * from stock_list WHERE `name` LIKE '%st%'
-# UPDATE stock_list SET `status` = 1 WHERE `name` LIKE '%st%'
-# select * from stock_list WHERE `name` LIKE '%退%'
-# UPDATE stock_list SET `status` = 2 , `delete`=1 WHERE `name` LIKE '%退%'
 
 
 #

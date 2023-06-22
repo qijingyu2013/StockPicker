@@ -61,7 +61,7 @@ def ma(data, num=30):
     return [price / num, percents / num, conversion / num]
 
 
-def highMargin(data, num=30):
+def highMargin(data, num=21):
     margin = []
     for i in range(0, num, 1):
         # 最高 - 前一天收盘价
@@ -76,7 +76,7 @@ def highMargin(data, num=30):
     return average(margin)
 
 
-def lowMargin(data, num=30):
+def lowMargin(data, num=21):
     margin = []
     for i in range(0, num, 1):
         # 开盘价 - 最低
@@ -210,7 +210,7 @@ def tradeT(lists):
         print("今日收盘:", data[0].close)
         print("明日卖点:", round(sell, 2))
         print("明日买点:", round(buy, 2))
-        fetchBottom(data[0].close, item, int(item) > 600000 and "sh" or "sz")
+        fetchBottom(data[0].close, item, int(item) >= 600000 and "sh" or "sz")
         print("<<<<<<<<<<<<<<<<<<<")
         # sell = data[0].close * (1 + high*0.33)
         # if sell < avg:
