@@ -22,6 +22,9 @@ def fetchBottom(price, symbols, symbol_type):
     yesterday_total = 0
     before_yesterday_total = 0
     three_days_ago_items_total = 0
+    today_ratio = 0
+    yesterday_ratio = 0
+    before_yesterday_ratio = 0
     for data in today_items:
         if price >= data['price']:
             today_total += data['volume']
@@ -35,12 +38,16 @@ def fetchBottom(price, symbols, symbol_type):
         if price >= data['price']:
             three_days_ago_items_total += data['volume']
 
-    today_ratio = yesterday_total > 0 and (today_total-yesterday_total)/yesterday_total*100 or yesterday_total
-    yesterday_ratio = before_yesterday_total > 0 and (yesterday_total-before_yesterday_total)/before_yesterday_total*100 or before_yesterday_total
-    before_yesterday_ratio = three_days_ago_items_total > 0 and (before_yesterday_total-three_days_ago_items_total)/three_days_ago_items_total*100 or three_days_ago_items_total
-    print(f'今日低于当前价位:{price}的筹码变化率:{round(today_ratio, 2)}% 统计数量:{today_total}')
-    print(f'昨日低于当前价位:{price}的筹码变化率:{round(yesterday_ratio, 2)}% 统计数量:{yesterday_total}')
-    print(f'前日低于当前价位:{price}的筹码变化率:{round(before_yesterday_ratio, 2)}% 统计数量:{before_yesterday_total}')
+    if yesterday_total > 0:
+        today_ratio = (today_total-yesterday_total)/yesterday_total*100
+    if before_yesterday_total > 0:
+        yesterday_ratio = (yesterday_total-before_yesterday_total)/before_yesterday_total*100
+    if three_days_ago_items_total > 0:
+        before_yesterday_ratio = (before_yesterday_total-three_days_ago_items_total)/three_days_ago_items_total*100
+
+    print(f'今日低于当前价位:{price}的筹码变化率:{today_ratio == 0 and today_ratio or round(today_ratio, 2)}% 统计数量:{today_total}')
+    print(f'昨日低于当前价位:{price}的筹码变化率:{yesterday_ratio == 0 and yesterday_ratio or round(yesterday_ratio, 2)}% 统计数量:{yesterday_total}')
+    print(f'前日低于当前价位:{price}的筹码变化率:{before_yesterday_ratio == 0 and before_yesterday_ratio or round(before_yesterday_ratio, 2)}% 统计数量:{before_yesterday_total}')
 
 
 # 1. 比股价低而且筹码集中的票
