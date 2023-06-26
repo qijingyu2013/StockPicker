@@ -212,6 +212,14 @@ def tradeT(lists):
         print("明日买点:", round(buy, 2))
         fetchBottom(data[0].close, item, int(item) >= 600000 and "sh" or "sz")
         print("<<<<<<<<<<<<<<<<<<<")
+        if item == '002184':
+            print("<<<<<<<<<<<<<<<<<<<")
+            fetchBottom(15.19, item, int(item) >= 600000 and "sh" or "sz")
+            print("<<<<<<<<<<<<<<<<<<<")
+        if item == '600330':
+            print("<<<<<<<<<<<<<<<<<<<")
+            fetchBottom(12, item, int(item) >= 600000 and "sh" or "sz")
+            print("<<<<<<<<<<<<<<<<<<<")
         # sell = data[0].close * (1 + high*0.33)
         # if sell < avg:
         #     print("明日卖点:", round(avg, 2))
