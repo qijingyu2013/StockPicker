@@ -65,26 +65,27 @@ def fetchMultiplier():
                                 ulist.append([result[3].name, result[3].code, '二板突破'])
 
                     elif result[3].close == result[3].limit_up:
-                        for i in range(2, -1, -1):
-                            # 不跌破涨停日的收盘价
-                            if result[3].close < result[i].low:
-                                count += 1
-                            else:
-                                break
-                            if result[i].turn_over_rate <= 10:
-                                break
-                            if result[i].close == result[i].limit_up:
-                                break
-                        if count == 3:
-                            # 第一天的收盘价 和 最后一天的收盘价 幅度不超过5%
-                            difference = result[0].close - result[3].close
-                            abs_difference = difference / result[3].close
-                            if abs_difference < -0.05:
-                                break
-                            elif abs_difference > 0.1:
-                                break
-                            else:
-                                ulist.append([result[3].name, result[3].code, '倍量'])
+                        if result[2].volume/result[3].volume >= 1.7:
+                            for i in range(2, -1, -1):
+                                # 不跌破涨停日的收盘价
+                                if result[3].close < result[i].low:
+                                    count += 1
+                                else:
+                                    break
+                                if result[i].turn_over_rate <= 10:
+                                    break
+                                if result[i].close == result[i].limit_up:
+                                    break
+                            if count == 3:
+                                # 第一天的收盘价 和 最后一天的收盘价 幅度不超过5%
+                                difference = result[0].close - result[3].close
+                                abs_difference = difference / result[3].close
+                                if abs_difference < -0.05:
+                                    break
+                                elif abs_difference > 0.1:
+                                    break
+                                else:
+                                    ulist.append([result[3].name, result[3].code, '倍量'])
             except IndexError as e:
                 print("this is a IndexError:", e)
                 print(result)
