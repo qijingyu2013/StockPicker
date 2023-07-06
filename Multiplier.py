@@ -72,8 +72,8 @@ def fetchMultiplier():
                                     count += 1
                                 else:
                                     break
-                                if result[i].turn_over_rate <= 10:
-                                    break
+                                # if result[i].turn_over_rate <= 10:
+                                #     break
                                 if result[i].close == result[i].limit_up:
                                     break
                             if count == 3:
