@@ -1,3 +1,5 @@
+import threading
+
 import pysnowball as ball
 # from Distribution import fetchBottom
 from Multiplier import fetchMultiplier
@@ -19,10 +21,26 @@ def main():
     ball.set_token(TOKEN)
     timestamp = currentTime()
     upgradeStockTrade(timestamp, 'daily')
-    upgradeStockList(timestamp)
-    nineDailyData()
-    fetchMultiplier()
-    multiplierHolding()
+
+    threadUpgradeStockList = threading.Thread(target=upgradeStockList, args=(timestamp,))
+    threadNineDailyData = threading.Thread(target=nineDailyData, args=())
+    threadMultiplier = threading.Thread(target=fetchMultiplier, args=())
+    threadMultiplierHolding = threading.Thread(target=multiplierHolding, args=())
+
+    threadUpgradeStockList.start()
+    threadNineDailyData.start()
+    threadMultiplier.start()
+    threadMultiplierHolding.start()
+
+    threadUpgradeStockList.join()
+    threadNineDailyData.join()
+    threadMultiplier.join()
+    multiplierHolding.join()
+
+    # upgradeStockList(timestamp)
+    # nineDailyData()
+    # fetchMultiplier()
+    # multiplierHolding()
     # fetchReleaseVolume()
     # fetchBottom()
 
