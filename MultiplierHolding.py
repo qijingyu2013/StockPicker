@@ -24,10 +24,10 @@ def multiplierHolding():
         length_total = len(lists)
         handle = 0
         for item in lists:
-            ceilingDatas = fetchCeilingDatas(item[0])
+            ceilingDataSet = fetchCeilingDatas(item[0])
             try:
-                if len(ceilingDatas) > 0:
-                    ceilingData = ceilingDatas[0]
+                if len(ceilingDataSet) > 0:
+                    ceilingData = ceilingDataSet[0]
                     ceilingAfterData = fetchCeilingAfterData(ceilingData)
                     total = len(ceilingAfterData)
                     # 过滤数据太少和不是倍量的情况
