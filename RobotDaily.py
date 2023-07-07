@@ -35,7 +35,7 @@ def main():
     threadUpgradeStockList.join()
     threadNineDailyData.join()
     threadMultiplier.join()
-    multiplierHolding.join()
+    threadMultiplierHolding.join()
 
     # upgradeStockList(timestamp)
     # nineDailyData()
