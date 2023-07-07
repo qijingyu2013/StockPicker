@@ -65,7 +65,7 @@ def fetchMultiplier():
                                 ulist.append([result[3].name, result[3].code, '二板突破'])
 
                     elif result[3].close == result[3].limit_up:
-                        if result[2].volume/result[3].volume >= 1.7:
+                        if result[2].volume > result[3].volume * 1.7:
                             for i in range(2, -1, -1):
                                 # 不跌破涨停日的收盘价
                                 if result[3].close < result[i].low:

@@ -110,7 +110,7 @@ class StockMission(Base):
     # 对于必须插入的字段，采用nullable=False进行约束，它相当于NOT NULL
     id = Column(Integer, primary_key=True, autoincrement=True, comment="主键")
     timestamp = Column(BigInteger, nullable=True, comment="时间戳")  # 时间戳
-    type = Column(Integer, comment="任务类型 1=倍量 2=9日阴 3=9周阴 4=9月阴 5=放量 6=底部筹码")
+    type = Column(Integer, comment="任务类型 1=倍量 2=9日阴 3=9周阴 4=9月阴 5=放量 6=底部筹码 7=倍量横盘")
     content = Column(Text, nullable=True, comment="执行结果")
     delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
     create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
