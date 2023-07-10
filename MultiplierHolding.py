@@ -32,18 +32,19 @@ def multiplierHolding():
                     total = len(ceilingAfterData)
                     # 过滤数据太少和不是倍量的情况
                     if total > 3 and ceilingAfterData[0].volume > ceilingData.volume * 1.7:
-                        # 过滤破位的情况
-                        target = True
-                        for trade in ceilingAfterData:
-                            if ceilingData.open > trade.low:
-                                target = False
-                                break
-                        if target:
-                            # 逼近破位价
-                            if ceilingData.open * 1.12 > ceilingAfterData[total - 1].close:
-                                # 最后一天放量
-                                if ceilingAfterData[total - 1].volume > ceilingAfterData[total - 2].volume * 1.5:
-                                    ulist.append([ceilingData.name, ceilingData.code, '倍量横盘'])
+                        if ceilingData.amount > 100000000:
+                            # 过滤破位的情况
+                            target = True
+                            for trade in ceilingAfterData:
+                                if ceilingData.open > trade.low:
+                                    target = False
+                                    break
+                            if target:
+                                # 逼近破位价
+                                if ceilingData.open * 1.08 > ceilingAfterData[total - 1].close:
+                                    # 最后一天放量
+                                    if ceilingAfterData[total - 1].volume > ceilingAfterData[total - 2].volume * 1.5:
+                                        ulist.append([ceilingData.name, ceilingData.code, '倍量横盘'])
             except IndexError as e:
                 print("this is a IndexError:", e)
                 print(ceilingData)
