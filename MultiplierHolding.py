@@ -40,7 +40,7 @@ def multiplierHolding():
                                 break
                         if target:
                             # 逼近破位价
-                            if ceilingData.open * 1.15 > ceilingAfterData[total - 1].close:
+                            if ceilingData.open * 1.12 > ceilingAfterData[total - 1].close:
                                 # 最后一天放量
                                 if ceilingAfterData[total - 1].volume > ceilingAfterData[total - 2].volume * 1.5:
                                     ulist.append([ceilingData.name, ceilingData.code, '倍量横盘'])
