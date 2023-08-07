@@ -5,7 +5,7 @@ import pysnowball as ball
 from Multiplier import fetchMultiplier
 from MultiplierHolding import multiplierHolding
 from NineYin import nineDailyData
-from ReleaseVolume import fetchReleaseVolume
+from Amplitude import fetchAmplitude
 from StockToDB import upgradeStockList, upgradeStockTrade
 from utils import currentTime, TOKEN
 
@@ -26,16 +26,19 @@ def main():
     threadNineDailyData = threading.Thread(target=nineDailyData, args=())
     threadMultiplier = threading.Thread(target=fetchMultiplier, args=())
     threadMultiplierHolding = threading.Thread(target=multiplierHolding, args=())
+    threadAmplitude = threading.Thread(target=fetchAmplitude, args=())
 
     threadUpgradeStockList.start()
     threadNineDailyData.start()
     threadMultiplier.start()
     threadMultiplierHolding.start()
+    threadAmplitude.start()
 
     threadUpgradeStockList.join()
     threadNineDailyData.join()
     threadMultiplier.join()
     threadMultiplierHolding.join()
+    threadAmplitude.join()
 
     # upgradeStockList(timestamp)
     # nineDailyData()
