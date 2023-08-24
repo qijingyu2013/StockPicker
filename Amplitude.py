@@ -35,7 +35,8 @@ def fetchAmplitude():
                 models.StockTrade
             ).filter(
                 and_(
-                    models.StockTrade.sid == item[0]
+                    models.StockTrade.sid == item[0],
+                    models.StockTrade.close != models.StockTrade.limit_up
                 )
             ).order_by(
                 models.StockTrade.timestamp.desc()
