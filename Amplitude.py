@@ -36,8 +36,8 @@ def fetchAmplitude():
             ).filter(
                 and_(
                     models.StockTrade.sid == item[0],
-                    models.StockTrade.close != models.StockTrade.limit_up,
-                    models.StockTrade.close != models.StockTrade.limit_down,
+                    # models.StockTrade.close != models.StockTrade.limit_up,
+                    # models.StockTrade.close != models.StockTrade.limit_down,
                     models.StockTrade.open != models.StockTrade.limit_up,
                     models.StockTrade.open != models.StockTrade.limit_down,
                 )
