@@ -74,10 +74,10 @@ def fetchAmplitude():
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / (length_total+4), round((length_total + 4 - handle) * 0.005, 1)), end='', flush=True)
         month_chart.sort(key=lambda x: x[2], reverse=True)
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / length_total, round((length_total + 1 - handle) * 0.005, 1)), end='', flush=True)
-        # for i in range(3):
-        #     ulist.append([week_chart[i][0], week_chart[i][1], week_chart[i][2], '7天内'])
-        # for i in range(3):
-        #     ulist.append([two_week_chart[i][0], two_week_chart[i][1], two_week_chart[i][2], '14天内'])
+        for i in range(5):
+            ulist.append([week_chart[i][0], week_chart[i][1], week_chart[i][2], '7天内'])
+        for i in range(5):
+            ulist.append([two_week_chart[i][0], two_week_chart[i][1], two_week_chart[i][2], '14天内'])
         for i in range(5):
             ulist.append([month_chart[i][0], month_chart[i][1], month_chart[i][2], '28天内'])
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / length_total, round((length_total - handle) * 0.005, 1)), end='', flush=True)
