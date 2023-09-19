@@ -38,8 +38,8 @@ def fetchAmplitude():
                     models.StockTrade.sid == item[0],
                     # models.StockTrade.close != models.StockTrade.limit_up,
                     # models.StockTrade.close != models.StockTrade.limit_down,
-                    models.StockTrade.open != models.StockTrade.limit_up,
-                    models.StockTrade.open != models.StockTrade.limit_down,
+                    # models.StockTrade.open != models.StockTrade.limit_up,
+                    # models.StockTrade.open != models.StockTrade.limit_down,
                 )
             ).order_by(
                 models.StockTrade.timestamp.desc()
@@ -49,16 +49,20 @@ def fetchAmplitude():
                     week_amplitude = 0
                     two_week_amplitude = 0
                     month_amplitude = 0
+                    tmp = 0
                     for i in range(28):
-                        amplitude = (result[i].high - result[i].low) / result[i + 1].close
-                        if i < 7:
-                            week_amplitude += amplitude
-                        if i < 14:
-                            two_week_amplitude += amplitude
-                        month_amplitude += amplitude
+                        if (result[i].high - result[i].low) > abs(result[i].chg):
+                            amplitude = (result[i].high - result[i].low) / result[i + 1].close
+                            month_amplitude += amplitude
+                            tmp += 1
+                            if tmp < 7:
+                                week_amplitude += amplitude
+                            if tmp < 14:
+                                two_week_amplitude += amplitude
+
                     week_chart.append([result[0].name, result[0].code, week_amplitude/7])
                     two_week_chart.append([result[0].name, result[0].code, two_week_amplitude/14])
-                    month_chart.append([result[0].name, result[0].code, month_amplitude/28])
+                    month_chart.append([result[0].name, result[0].code, month_amplitude/tmp])
 
             except IndexError as e:
                 print("this is a IndexError:", e)
