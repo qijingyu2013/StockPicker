@@ -82,7 +82,7 @@ def fetchAmplitude():
             ulist.append([week_chart[i][0], week_chart[i][1], week_chart[i][2], '7天内'])
         for i in range(5):
             ulist.append([two_week_chart[i][0], two_week_chart[i][1], two_week_chart[i][2], '14天内'])
-        for i in range(5):
+        for i in range(10):
             ulist.append([month_chart[i][0], month_chart[i][1], month_chart[i][2], '28天内'])
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / length_total, round((length_total - handle) * 0.005, 1)), end='', flush=True)
         saveStockMission(zero, 8, str(ulist))
