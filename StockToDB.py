@@ -78,6 +78,7 @@ class StockType(Enum):
     Ke = 6
     CiXinGu = 7
     ZhongXiaoBan = 8
+    ChuangCiXinGu = 9
 
 
 # 从数据库里拿出股票列表
@@ -133,6 +134,26 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             and_(
                 # models.StockList.id > 4244,
                 models.StockList.code >= 300000,
+                models.StockList.code < 301000,
+                models.StockList.status.in_((0, 1 if st else 0)),
+                models.StockList.delete == 0
+            ),
+            or_(
+                ~models.StockList.name.like('%N%'),
+                ~models.StockList.name.like('%退%'),
+                ~models.StockList.name.like('%退市%'),
+            )
+        ).all()
+
+        cy_cxg = models.session.query(
+            models.StockList.id,
+            models.StockList.flag,
+            models.StockList.code,
+            models.StockList.name
+        ).filter(
+            and_(
+                # models.StockList.id > 4244,
+                models.StockList.code >= 301000,
                 models.StockList.code < 310000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
@@ -182,7 +203,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             )
         ).all()
         if type == StockType.HuShenChuang:
-            result = sz + cy + sh + cxg + zxb
+            result = sz + cy + sh + cxg + zxb + cy_cxg
         elif type == StockType.HuShen:
             result = sz + sh + cxg + zxb
         elif type == StockType.Hu:
@@ -190,11 +211,13 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         elif type == StockType.Shen:
             result = sz + zxb
         elif type == StockType.Chuang:
-            result = cy
+            result = cy + cy_cxg
         elif type == StockType.CiXinGu:
             result = cxg
         elif type == StockType.ZhongXiaoBan:
             result = zxb
+        elif type == StockType.ChuangCiXinGu:
+            result = cy_cxg
         else:
             result = sz + cy + sh + cxg + zxb
 
@@ -422,18 +445,21 @@ def upgradeStockTrade(timestamp, period='all'):
     thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Chuang,))
     thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.CiXinGu,))
     thread_zxb = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.ZhongXiaoBan,))
+    thread_cy_cx = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.ChuangCiXinGu,))
 
     thread_hu.start()
     thread_shen.start()
     thread_cy.start()
     thread_cxg.start()
     thread_zxb.start()
+    thread_cy_cx.start()
 
     thread_hu.join()
     thread_shen.join()
     thread_cy.join()
     thread_cxg.join()
     thread_zxb.join()
+    thread_cy_cx.join()
 
     return
 
