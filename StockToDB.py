@@ -76,6 +76,7 @@ class StockType(Enum):
     Shen = 4
     Chuang = 5
     Ke = 6
+    CiXinGu = 7
 
 
 # 从数据库里拿出股票列表
@@ -130,7 +131,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).filter(
             and_(
                 models.StockList.code >= 600000,
-                models.StockList.code < 688000,
+                models.StockList.code < 603000,
                 models.StockList.status.in_((0, 1 if st else 0)),
                 models.StockList.delete == 0
             ),
@@ -141,18 +142,36 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             )
         ).all()
 
+        cxg = models.session.query(
+            models.StockList.id,
+            models.StockList.flag,
+            models.StockList.code,
+            models.StockList.name
+        ).filter(
+            and_(
+                models.StockList.code >= 603000,
+                models.StockList.code < 688000,
+                models.StockList.status.in_((0, 1 if st else 0)),
+                models.StockList.delete == 0
+            ),
+            or_(
+                ~models.StockList.name.like('%N%'),
+                ~models.StockList.name.like('%退%'),
+                ~models.StockList.name.like('%退市%'),
+            )
+        ).all()
         if type == StockType.HuShenChuang:
-            result = sz + cy + sh
+            result = sz + cy + sh + cxg
         elif type == StockType.HuShen:
-            result = sz + sh
+            result = sz + sh + cxg
         elif type == StockType.Hu:
-            result = sh
+            result = sh + cxg
         elif type == StockType.Shen:
             result = sz
         elif type == StockType.Chuang:
             result = cy
         else:
-            result = sz + cy + sh
+            result = sz + cy + sh + cxg
 
         print("股票池数量:", len(result))
     except IndexError as e:
@@ -376,14 +395,17 @@ def upgradeStockTrade(timestamp, period='all'):
     thread_hu = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Hu,))
     thread_shen = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Shen,))
     thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Chuang,))
+    thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.CiXinGu,))
 
     thread_hu.start()
     thread_shen.start()
     thread_cy.start()
+    thread_cxg.start()
 
     thread_hu.join()
     thread_shen.join()
     thread_cy.join()
+    thread_cxg.join()
 
     return
 
