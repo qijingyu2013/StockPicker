@@ -191,6 +191,10 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             result = sz + zxb
         elif type == StockType.Chuang:
             result = cy
+        elif type == StockType.CiXinGu:
+            result = cxg
+        elif type == StockType.ZhongXiaoBan:
+            result = zxb
         else:
             result = sz + cy + sh + cxg + zxb
 
