@@ -18,6 +18,8 @@ def fetchBottom(price, symbols, symbol_type):
     yesterday_items = distribution_data[length-2]['items']
     before_yesterday_items = distribution_data[length-3]['items']
     three_days_ago_items = distribution_data[length-4]['items']
+    shapes = distribution_data[length-1]['shapes']
+    shapes_detail = distribution_data[length-1]['shapes_detail']
     today_total = 0
     yesterday_total = 0
     before_yesterday_total = 0
@@ -48,7 +50,7 @@ def fetchBottom(price, symbols, symbol_type):
     print(f'今日低于当前价位:{price}的筹码变化率:{today_ratio == 0 and today_ratio or round(today_ratio, 2)}% 统计数量:{today_total}')
     print(f'昨日低于当前价位:{price}的筹码变化率:{yesterday_ratio == 0 and yesterday_ratio or round(yesterday_ratio, 2)}% 统计数量:{yesterday_total}')
     print(f'前日低于当前价位:{price}的筹码变化率:{before_yesterday_ratio == 0 and before_yesterday_ratio or round(before_yesterday_ratio, 2)}% 统计数量:{before_yesterday_total}')
-
+    print(f'当前趋势:{shapes}--{shapes_detail}')
 
 # 1. 比股价低而且筹码集中的票
 # 1.1 抓取股票信息

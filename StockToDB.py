@@ -271,7 +271,9 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
             result = handle.one_or_none()
             if result is not None:
                 handle.update({
-                    'datas': json.dumps(distribution_data[i]['items'], indent=2)
+                    'datas': json.dumps(distribution_data[i]['items'], indent=2),
+                    'shapes': distribution_data[i]['chipSummary']['shapesQuShi'],  # 趋势形态
+                    'shapes_detail': distribution_data[i]['chipSummary']['shapesDetail'],  # 趋势形态详情
                 })
             else:
                 stock_distribution_instance = models.StockDistribution(
@@ -280,6 +282,8 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
                     name=stock_name,  # 股票名称
                     timestamp=distribution_data[i]['tradeDate'],  # 交易日时间戳
                     datas=json.dumps(distribution_data[i]['items'], indent=2),  # 分布数据
+                    shapes=distribution_data[i]['chipSummary']['shapesQuShi'],  # 趋势形态
+                    shapes_detail=distribution_data[i]['chipSummary']['shapesDetail'],  # 趋势形态详情
                 )
                 models.session.add(stock_distribution_instance)
 
@@ -440,26 +444,32 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
 
 # 更新股票行情(多线程）
 def upgradeStockTrade(timestamp, period='all'):
-    thread_hu = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Hu,))
-    thread_shen = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Shen,))
-    thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.Chuang,))
-    thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.CiXinGu,))
-    thread_zxb = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.ZhongXiaoBan,))
-    thread_cy_cx = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, period, StockType.ChuangCiXinGu,))
+    thread_hu = threading.Thread(target=upgradeStockTradeWithStockType,
+                                 args=(timestamp, period, StockType.Hu,))
+    thread_shen = threading.Thread(target=upgradeStockTradeWithStockType,
+                                   args=(timestamp, period, StockType.Shen,))
+    thread_cy = threading.Thread(target=upgradeStockTradeWithStockType,
+                                 args=(timestamp, period, StockType.Chuang,))
+    thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
+                                  args=(timestamp, period, StockType.CiXinGu,))
+    thread_zxb = threading.Thread(target=upgradeStockTradeWithStockType,
+                                  args=(timestamp, period, StockType.ZhongXiaoBan,))
+    thread_cy_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
+                                     args=(timestamp, period, StockType.ChuangCiXinGu,))
 
     thread_hu.start()
     thread_shen.start()
     thread_cy.start()
     thread_cxg.start()
     thread_zxb.start()
-    thread_cy_cx.start()
+    thread_cy_cxg.start()
 
     thread_hu.join()
     thread_shen.join()
     thread_cy.join()
     thread_cxg.join()
     thread_zxb.join()
-    thread_cy_cx.join()
+    thread_cy_cxg.join()
 
     return
 
@@ -479,6 +489,7 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
                 data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
+                # print(distribution_data)
                 saveStockDistribution(item[0], item[2], item[3], distribution_data, period)
             elif period == 'weekly':
                 # 抓取周行情

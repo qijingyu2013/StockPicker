@@ -98,6 +98,8 @@ class StockDistribution(Base):
     code = Column(String(8), nullable=True, comment="股票代码")
     timestamp = Column(BigInteger, nullable=True, comment="交易日时间戳")
     datas = Column(Text, nullable=True, comment="筹码分布数据")
+    shapes = Column(String(20), index=True, nullable=True, comment="趋势形态")
+    shapes_detail = Column(String(255), nullable=True, comment="趋势形态详细说明")
     delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
     create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
     update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
