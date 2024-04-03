@@ -18,8 +18,8 @@ def fetchBottom(price, symbols, symbol_type):
     yesterday_items = distribution_data[length-2]['items']
     before_yesterday_items = distribution_data[length-3]['items']
     three_days_ago_items = distribution_data[length-4]['items']
-    shapes = distribution_data[length-1]['shapes']
-    shapes_detail = distribution_data[length-1]['shapes_detail']
+    shapes = distribution_data[length-1]['chipSummary']['shapesQuShi']
+    shapes_detail = distribution_data[length-1]['chipSummary']['shapesDetail']
     today_total = 0
     yesterday_total = 0
     before_yesterday_total = 0
