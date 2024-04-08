@@ -83,6 +83,7 @@ class StockTrade(Base):
     limit_down = Column(Float, nullable=True, comment="跌停价")
     status = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ，  其他1")
     delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
+    cci = Column(Float, nullable=True, comment="cci指标")
     create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
     update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
 

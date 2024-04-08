@@ -18,6 +18,7 @@ from sqlalchemy import and_, or_
 import models
 import pysnowball as ball
 import jfzt
+# from CCI import cci
 from utils import TOKEN
 
 
@@ -335,6 +336,9 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
                 else:
                     limit_up_price = round((item[5] - item[6]) * 1.1, 2)
                     limit_down_price = round((item[5] - item[6]) * 0.9, 2)
+                    
+                # cci_value = cci(stock_id, item[0], item[3], item[4], item[5])
+                    
                 stock_trade_instance = models.StockTrade(
                     sid=stock_id,  # stock_list的主键
                     code=stock_code,  # 股票代码
@@ -351,6 +355,7 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
                     amount=item[9],  # 成交额
                     limit_up=limit_up_price,  # 涨停价
                     limit_down=limit_down_price,  # 跌停价
+                    # cci=cci_value,  # cci 指标
                 )
                 models.session.add(stock_trade_instance)
             # 提交
