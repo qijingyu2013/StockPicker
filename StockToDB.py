@@ -355,6 +355,7 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
                     amount=item[9],  # 成交额
                     limit_up=limit_up_price,  # 涨停价
                     limit_down=limit_down_price,  # 跌停价
+                    cci=0.00,  # cci 指标
                     # cci=cci_value,  # cci 指标
                 )
                 models.session.add(stock_trade_instance)
