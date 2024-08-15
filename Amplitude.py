@@ -62,7 +62,10 @@ def fetchAmplitude():
 
                     week_chart.append([result[0].name, result[0].code, week_amplitude/7])
                     two_week_chart.append([result[0].name, result[0].code, two_week_amplitude/14])
-                    month_chart.append([result[0].name, result[0].code, month_amplitude/tmp])
+                    if tmp == 0:
+                        month_chart.append([result[0].name, result[0].code, 0])
+                    else:
+                        month_chart.append([result[0].name, result[0].code, month_amplitude/tmp])
 
             except IndexError as e:
                 print("this is a IndexError:", e)
