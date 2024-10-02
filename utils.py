@@ -2,8 +2,14 @@ import datetime
 import time
 
 # 雪球相关配置 (这段本应该放在 config.py，token 是周期性更新，且自用，没必要给自己增加麻烦所以提出来放在这里做全局参数用)
-XQ_A_TOKEN = '030889433953bf4bf15985d7a13b442abad75180'
-TOKEN = 'xq_a_token={};'.format(XQ_A_TOKEN)
+try:
+    XQ_TOKEN_FILE = open('xueqiu_token.txt', 'r+')
+    XQ_A_TOKEN = XQ_TOKEN_FILE.readline().strip()
+    U = XQ_TOKEN_FILE.readline().strip()
+    TOKEN = 'U={};xq_a_token={};'.format(U, XQ_A_TOKEN)
+    XQ_TOKEN_FILE.close()
+except FileNotFoundError as e:
+    open('xueqiu_token.txt', 'w+')
 
 
 # 当前时间
