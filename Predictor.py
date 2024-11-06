@@ -199,20 +199,26 @@ def tradeT(lists):
 
         # 卖出价
         sell = data[0].close * (1 + high)
+        half_sell = data[0].close * (1 + high/2)
         # 卖出价 下方筹码比重
         # 买入价
         buy = data[0].close * (1 - low)
+        half_buy = data[0].close * (1 - low/2)
         # 买入价 上方筹码比重
 
         # print("当天收盘价:", data[0].close)
         # print("当天均价:", round(avg, 2))
 
         print("今日收盘:", data[0].close)
-        print("明日卖点:", round(sell, 2))
-        print("明日买点:", round(buy, 2))
+        print("明日半倍卖点:", round(half_sell, 2))
+        print("明日一倍卖点:", round(sell, 2))
+        print("明日半倍买点:", round(half_buy, 2))
+        print("明日一倍买点:", round(buy, 2))
         fetchBottom(data[0].close, item, int(item) >= 600000 and "sh" or "sz")
         print("<<<<<<<<<<<<<<<<<<<")
-        # sell = data[0].close * (1 + high*0.33)
+
+
+# sell = data[0].close * (1 + high*0.33)
         # if sell < avg:
         #     print("明日卖点:", round(avg, 2))
         # else:
