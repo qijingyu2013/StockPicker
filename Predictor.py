@@ -184,8 +184,12 @@ def tradeT(lists):
         print(">>>>>>>>>>>>>>>>>>>")
         print("股票代号:", item)
         print("股票名称:", data[0].name)
-        print("平均上涨幅度:", round(high * 100, 2), "%")
-        print("平均下跌幅度:", round(low * 100, 2), "%")
+        print("半倍均上涨幅度:", round(high * 100 * 0.5, 2), "%")
+        print("点75倍均上涨幅度:", round(high * 100 * 0.75, 2), "%")
+        print("一倍上涨幅度:", round(high * 100, 2), "%")
+        print("半倍均下跌幅度:", round(low * 100 * 0.5, 2), "%")
+        print("点75倍均下跌幅度:", round(low * 100 * 0.75, 2), "%")
+        print("一倍下跌幅度:", round(low * 100, 2), "%")
         # print(low)
         # 获取历史高于80%成功率的交易系数
         # coefficient = history(item)
@@ -199,11 +203,13 @@ def tradeT(lists):
 
         # 卖出价
         sell = data[0].close * (1 + high)
-        half_sell = data[0].close * (1 + high/2)
+        half_sell = data[0].close * (1 + high * 0.5)
+        point75_sell = data[0].close * (1 + high * 0.75)
         # 卖出价 下方筹码比重
         # 买入价
         buy = data[0].close * (1 - low)
-        half_buy = data[0].close * (1 - low/2)
+        half_buy = data[0].close * (1 - low * 0.5)
+        point75_buy = data[0].close * (1 - low * 0.75)
         # 买入价 上方筹码比重
 
         # print("当天收盘价:", data[0].close)
@@ -211,8 +217,10 @@ def tradeT(lists):
 
         print("今日收盘:", data[0].close)
         print("明日半倍卖点:", round(half_sell, 2))
+        print("明日点75倍卖点:", round(point75_sell, 2))
         print("明日一倍卖点:", round(sell, 2))
         print("明日半倍买点:", round(half_buy, 2))
+        print("明日点75倍买点:", round(point75_buy, 2))
         print("明日一倍买点:", round(buy, 2))
         fetchBottom(data[0].close, item, int(item) >= 600000 and "sh" or "sz")
         print("<<<<<<<<<<<<<<<<<<<")
