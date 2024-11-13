@@ -197,26 +197,30 @@ def tradeT(lists):
         # buy = data[0].close * (1 - low) * (1 - coefficient[1] / 10000)
 
         # 卖出价
-        sell = data[0].close * (1 + high)
-        half_sell = data[0].close * (1 + high * 0.5)
-        point75_sell = data[0].close * (1 + high * 0.75)
+        # sell = data[0].close * (1 + high)
+        # half_sell = data[0].close * (1 + high * 0.5)
+        # point75_sell = data[0].close * (1 + high * 0.75)
         # 卖出价 下方筹码比重
         # 买入价
-        buy = data[0].close * (1 - low)
-        half_buy = data[0].close * (1 - low * 0.5)
-        point75_buy = data[0].close * (1 - low * 0.75)
+        # buy = data[0].close * (1 - low)
+        # half_buy = data[0].close * (1 - low * 0.5)
+        # point75_buy = data[0].close * (1 - low * 0.75)
         # 买入价 上方筹码比重
 
         # print("当天收盘价:", data[0].close)
         # print("当天均价:", round(avg, 2))
 
         print("今日收盘:", data[0].close)
-        print("半倍均上涨幅度:", round(high * 100 * 0.5, 2), "%", "明日半倍卖点:", round(half_sell, 2), )
-        print("点75倍均上涨幅度:", round(high * 100 * 0.75, 2), "%", "明日点75倍卖点:", round(point75_sell, 2))
-        print("一倍上涨幅度:", round(high * 100, 2), "%", "明日一倍卖点:", round(sell, 2))
-        print("半倍均下跌幅度:", round(low * 100 * 0.5, 2), "%", "明日半倍买点:", round(half_buy, 2))
-        print("点75倍均下跌幅度:", round(low * 100 * 0.75, 2), "%", "明日点75倍买点:", round(point75_buy, 2))
-        print("一倍下跌幅度:", round(low * 100, 2), "%", "明日一倍买点:", round(buy, 2))
+        print("半倍均上涨幅度:", round(high * 100 * 0.5, 2), "%", "卖点:", round(data[0].close * (1 + high * 0.5), 2), )
+        print("点60倍均上涨幅度:", round(high * 100 * 0.6, 2), "%", "卖点:", round(data[0].close * (1 + high * 0.6), 2), )
+        print("点75倍均上涨幅度:", round(high * 100 * 0.75, 2), "%", "卖点:", round(data[0].close * (1 + high * 0.75), 2))
+        print("点90倍均上涨幅度:", round(high * 100 * 0.9, 2), "%", "卖点:", round(data[0].close * (1 + high * 0.9), 2))
+        print("一倍上涨幅度:", round(high * 100, 2), "%", "卖点:", round(data[0].close * (1 + high), 2))
+        print("半倍均下跌幅度:", round(low * 100 * 0.5, 2), "%", "买点:", round(data[0].close * (1 - low * 0.5), 2))
+        print("点60倍均下跌幅度:", round(low * 100 * 0.6, 2), "%", "买点:", round(data[0].close * (1 - low * 0.6), 2))
+        print("点75倍均下跌幅度:", round(low * 100 * 0.75, 2), "%", "买点:", round(data[0].close * (1 - low * 0.75), 2))
+        print("点90倍均下跌幅度:", round(low * 100 * 0.9, 2), "%", "买点:", round(data[0].close * (1 - low * 0.9), 2))
+        print("一倍下跌幅度:", round(low * 100, 2), "%", "买点:", round(data[0].close * (1 - low), 2))
         fetchBottom(data[0].close, item, int(item) >= 600000 and "sh" or "sz")
         print("<<<<<<<<<<<<<<<<<<<")
 
