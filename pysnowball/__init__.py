@@ -31,6 +31,6 @@ from pysnowball.index import (index_basic_info, index_details_data, index_weight
 from pysnowball.hkex import (
     northbound_shareholding_sh, northbound_shareholding_sz)
 
-from pysnowball.kline import (daily, weekly, monthly)
+from pysnowball.kline import (m30, daily, weekly, monthly)
 
 from pysnowball.lists import (stock_list, debenture_list)
