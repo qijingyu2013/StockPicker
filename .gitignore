@@ -6,3 +6,4 @@ lesson/weibo.py
 Auto-GPT/*
 tools/*
 chatgpt/*
+.DS_Store
