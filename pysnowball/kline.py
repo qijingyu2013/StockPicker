@@ -5,7 +5,6 @@ from pysnowball import utls
 def daily(symbol, begin=1652024902313, count=-10):
     return period(symbol, begin, count, 'day')
 
-
 def weekly(symbol, begin=1652024902313, count=-10):
     return period(symbol, begin, count, 'week')
 
@@ -13,6 +12,8 @@ def weekly(symbol, begin=1652024902313, count=-10):
 def monthly(symbol, begin=1652024902313, count=-10):
     return period(symbol, begin, count, 'month')
 
+def m30(symbol, begin=1652024902313, count=-10):
+    return period(symbol, begin, count, '30m')
 
 def period(symbol, begin=1652024902313, count=-10, date_period='day'):
     url = api_ref.kline_list_url + symbol
