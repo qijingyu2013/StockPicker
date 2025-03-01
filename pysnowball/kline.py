@@ -25,4 +25,4 @@ def period(symbol, begin=1652024902313, count=-10, date_period='day'):
     url = url + '&count=' + str(count)
     # print(url)
 
-    return utls.fetch(url)
+    return utls.fetch_xiuqiu_kline(url)

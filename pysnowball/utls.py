@@ -48,6 +48,20 @@ def fetch_without_token(url, host="stock.xueqiu.com"):
     return json.loads(response.content)
 
 
+def fetch_xiuqiu_kline(url):
+    session = requests.Session()
+    session.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+    session.get('https://xueqiu.com/?md5__1038=QqGxcDnDyiitnD05o4%2Br%3D8%3DeD5mEf40I3dx')
+    r = session.get(url)
+    # print(r.text)
+    content = json.loads(r.text)
+    # print(content)
+    if content['error_code'] != 0:
+        raise Exception(content['error_code']['error_description'])
+
+    return content['data']
+
+
 def fetch_eastmoney(url):
     HEADERS = {"Host": "datacenter-web.eastmoney.com",
                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36",
@@ -57,7 +71,7 @@ def fetch_eastmoney(url):
     response = requests.get(url, headers=HEADERS)
 
     if response.status_code != 200:
-        raise Exception(response.content)
+        raise Exception(response.content.decode('utf-8'))
 
     return json.loads(response.content)
 
