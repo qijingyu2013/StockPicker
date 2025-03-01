@@ -7,3 +7,6 @@ Auto-GPT/*
 tools/*
 chatgpt/*
 .DS_Store
+.history/*
+.idea/*
+
