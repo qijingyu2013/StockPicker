@@ -492,7 +492,7 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
             if period == 'daily':
                 # 抓取日行情
                 # print(item[2], item[1])
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
                 # print(distribution_data)
@@ -533,25 +533,22 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             else:
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本周数据
                 # data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本月数据
                 # data_monthly.pop()
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
         except KeyError as e:
             print("\rthis is a KeyError:", e)
-            print(item[0], item[2], item[3])
-        except TypeError as e:
-            print("\rthis is a TypeError:", e)
             print(item[0], item[2], item[3])
         time.sleep(0.1)
         handle += 1

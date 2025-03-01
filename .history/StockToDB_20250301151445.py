@@ -309,6 +309,7 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
     except IndexError as e:
         print("this is a IndexError:", e)
     except KeyError as e:
+        print('here2')
         print("this is a KeyError:", e)
 
     return
@@ -533,16 +534,16 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             else:
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本周数据
                 # data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本月数据
                 # data_monthly.pop()
                 # 保存行情信息

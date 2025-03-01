@@ -309,6 +309,7 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
     except IndexError as e:
         print("this is a IndexError:", e)
     except KeyError as e:
+        print('here2')
         print("this is a KeyError:", e)
 
     return

@@ -309,6 +309,7 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
     except IndexError as e:
         print("this is a IndexError:", e)
     except KeyError as e:
+        print('here2')
         print("this is a KeyError:", e)
 
     return
@@ -450,32 +451,32 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
 
 # 更新股票行情(多线程）
 def upgradeStockTrade(timestamp, period='all'):
-    thread_hu = threading.Thread(target=upgradeStockTradeWithStockType,
-                                 args=(timestamp, period, StockType.Hu,))
-    thread_shen = threading.Thread(target=upgradeStockTradeWithStockType,
-                                   args=(timestamp, period, StockType.Shen,))
+    # thread_hu = threading.Thread(target=upgradeStockTradeWithStockType,
+    #                              args=(timestamp, period, StockType.Hu,))
+    # thread_shen = threading.Thread(target=upgradeStockTradeWithStockType,
+    #                                args=(timestamp, period, StockType.Shen,))
     thread_cy = threading.Thread(target=upgradeStockTradeWithStockType,
                                  args=(timestamp, period, StockType.Chuang,))
-    thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
-                                  args=(timestamp, period, StockType.CiXinGu,))
-    thread_zxb = threading.Thread(target=upgradeStockTradeWithStockType,
-                                  args=(timestamp, period, StockType.ZhongXiaoBan,))
-    thread_cy_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
-                                     args=(timestamp, period, StockType.ChuangCiXinGu,))
+    # thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
+    #                               args=(timestamp, period, StockType.CiXinGu,))
+    # thread_zxb = threading.Thread(target=upgradeStockTradeWithStockType,
+    #                               args=(timestamp, period, StockType.ZhongXiaoBan,))
+    # thread_cy_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
+    #                                  args=(timestamp, period, StockType.ChuangCiXinGu,))
 
-    thread_hu.start()
-    thread_shen.start()
+    # thread_hu.start()
+    # thread_shen.start()
     thread_cy.start()
-    thread_cxg.start()
-    thread_zxb.start()
-    thread_cy_cxg.start()
+    # thread_cxg.start()
+    # thread_zxb.start()
+    # thread_cy_cxg.start()
 
-    thread_hu.join()
-    thread_shen.join()
+    # thread_hu.join()
+    # thread_shen.join()
     thread_cy.join()
-    thread_cxg.join()
-    thread_zxb.join()
-    thread_cy_cxg.join()
+    # thread_cxg.join()
+    # thread_zxb.join()
+    # thread_cy_cxg.join()
 
     return
 
@@ -492,11 +493,12 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
             if period == 'daily':
                 # 抓取日行情
                 # print(item[2], item[1])
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
-                saveStockTradeDaily(item[0], item[2], item[3], data_daily)
-                distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
-                # print(distribution_data)
-                saveStockDistribution(item[0], item[2], item[3], distribution_data, period)
+                print(ball.daily(item[1] + item[2], timestamp, -1))
+                # data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
+                # saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+                # distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
+                # # print(distribution_data)
+                # saveStockDistribution(item[0], item[2], item[3], distribution_data, period)
             elif period == 'weekly':
                 # 抓取周行情
                 data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
@@ -533,25 +535,22 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             else:
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['data']['item']
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['item']
+                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本周数据
                 # data_weekly.pop()
                 # 保存行情信息
                 saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
                 # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['item']
+                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
                 # 剔除本月数据
                 # data_monthly.pop()
                 # 保存行情信息
                 saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
         except KeyError as e:
             print("\rthis is a KeyError:", e)
-            print(item[0], item[2], item[3])
-        except TypeError as e:
-            print("\rthis is a TypeError:", e)
             print(item[0], item[2], item[3])
         time.sleep(0.1)
         handle += 1
