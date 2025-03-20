@@ -9,7 +9,7 @@ from utils import currentTime, zeroTime, printOptimizedForm
 
 
 # 1. 创建周榜数组、双周榜数组和月榜数组
-# 2. 找出7日、14日、28日交易数据
+# 2. 找出5日、10日、20日交易数据
 # 3. 计算平均值，把最高放入对应数组，只保留前三
 # 4. 振幅=（最高-最低）/开盘
 def fetchAmplitude():
@@ -43,25 +43,25 @@ def fetchAmplitude():
                 )
             ).order_by(
                 models.StockTrade.timestamp.desc()
-            ).limit(29).all()
+            ).limit(21).all()
             try:
-                if len(result) == 29:
+                if len(result) == 21:
                     week_amplitude = 0
                     two_week_amplitude = 0
                     month_amplitude = 0
                     tmp = 0
-                    for i in range(28):
+                    for i in range(21):
                         if (result[i].high - result[i].low) > abs(result[i].chg):
                             amplitude = (result[i].high - result[i].low) / result[i + 1].close
                             month_amplitude += amplitude
                             tmp += 1
-                            if tmp < 7:
+                            if tmp < 5:
                                 week_amplitude += amplitude
-                            if tmp < 14:
+                            if tmp < 10:
                                 two_week_amplitude += amplitude
 
-                    week_chart.append([result[0].name, result[0].code, week_amplitude/7])
-                    two_week_chart.append([result[0].name, result[0].code, two_week_amplitude/14])
+                    week_chart.append([result[0].name, result[0].code, week_amplitude/5])
+                    two_week_chart.append([result[0].name, result[0].code, two_week_amplitude/10])
                     if tmp == 0:
                         month_chart.append([result[0].name, result[0].code, 0])
                     else:
@@ -81,12 +81,12 @@ def fetchAmplitude():
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / (length_total+4), round((length_total + 4 - handle) * 0.005, 1)), end='', flush=True)
         month_chart.sort(key=lambda x: x[2], reverse=True)
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / length_total, round((length_total + 1 - handle) * 0.005, 1)), end='', flush=True)
-        for i in range(5):
-            ulist.append([week_chart[i][0], week_chart[i][1], week_chart[i][2], '7天内'])
-        for i in range(5):
-            ulist.append([two_week_chart[i][0], two_week_chart[i][1], two_week_chart[i][2], '14天内'])
         for i in range(10):
-            ulist.append([month_chart[i][0], month_chart[i][1], month_chart[i][2], '28天内'])
+            ulist.append([week_chart[i][0], week_chart[i][1], week_chart[i][2], '5天内'])
+        for i in range(10):
+            ulist.append([two_week_chart[i][0], two_week_chart[i][1], two_week_chart[i][2], '10天内'])
+        for i in range(10):
+            ulist.append([month_chart[i][0], month_chart[i][1], month_chart[i][2], '280天内'])
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / length_total, round((length_total - handle) * 0.005, 1)), end='', flush=True)
         saveStockMission(zero, 8, str(ulist))
     else:
