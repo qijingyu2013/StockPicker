@@ -86,7 +86,7 @@ def fetchAmplitude():
         for i in range(10):
             ulist.append([two_week_chart[i][0], two_week_chart[i][1], two_week_chart[i][2], '10天内'])
         for i in range(10):
-            ulist.append([month_chart[i][0], month_chart[i][1], month_chart[i][2], '280天内'])
+            ulist.append([month_chart[i][0], month_chart[i][1], month_chart[i][2], '20天内'])
         print('\r完成度为: {:.2%}, 还剩余: {}秒'.format(handle / length_total, round((length_total - handle) * 0.005, 1)), end='', flush=True)
         saveStockMission(zero, 8, str(ulist))
     else:
@@ -114,8 +114,6 @@ def printUnivList(ulist):
 #     #     ball.set_token(TOKEN)
 #     #     # timestamp = currentTime()
 #     fetchAmplitude()
-#
-#
 # #
 # #
 # main()
