@@ -1,5 +1,6 @@
-import datetime
+import datetime as xqtime
 import time
+from datetime import datetime, timedelta
 
 # 雪球相关配置 (这段本应该放在 config.py，token 是周期性更新，且自用，没必要给自己增加麻烦所以提出来放在这里做全局参数用)
 try:
@@ -14,9 +15,9 @@ except FileNotFoundError as e:
 
 # 当前时间
 def nowTime():
-    current = datetime.datetime.now()
+    current = datetime.now()
     un_time = time.mktime(current.timetuple())
-    current = datetime.datetime.now()
+    current = datetime.now()
     # 打印当前时间
     print("当前时间 :", current)
     return round(un_time)
@@ -24,12 +25,12 @@ def nowTime():
 
 # （雪球网专用）
 def currentTime():
-    current = datetime.datetime.now()
+    current = xqtime.datetime.now()
     # 打印当前时间
     print("当前时间 :", current)
-    today = datetime.date.today()
+    today = xqtime.date.today()
     # yesterday = today - datetime.timedelta(days=1)
-    tomorrow = today + datetime.timedelta(days=1)
+    tomorrow = today + xqtime.timedelta(days=1)
     # print("当前时间 :", today)
     # print("昨天 :", yesterday)
     # print("明天 :", tomorrow)
@@ -43,12 +44,25 @@ def currentTime():
     # print(round(timestamp*1000))
     return round(timestamp * 1000)
 
+def akTime(days):
+    # 获取当前时间
+    today = datetime.now()
+
+    # 计算需要提前获取的日期（21个交易日）
+    fetch_start = today - timedelta(days=days)  # 预留缓冲
+
+    # 转换为 datetime 对象
+    start_dt = datetime.strftime(fetch_start, '%Y%m%d')
+    end_dt = datetime.strftime(today, '%Y%m%d')
+    return start_dt, end_dt
+
+
 
 def zeroTime():
-    current = datetime.datetime.now()
+    current = xqtime.datetime.now()
     # 打印当前时间
     print("当前时间 :", current)
-    today = datetime.date.today()
+    today = xqtime.date.today()
     dt = str(today) + ' 00:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
@@ -57,8 +71,8 @@ def zeroTime():
 
 
 def customizeTime(offset=9):
-    today = datetime.date.today()
-    day = today + datetime.timedelta(days=offset)
+    today = xqtime.date.today()
+    day = today + xqtime.timedelta(days=offset)
     dt = str(day) + ' 00:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)

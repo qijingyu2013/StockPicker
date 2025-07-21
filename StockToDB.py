@@ -11,6 +11,7 @@ import datetime
 import json
 import threading
 import time
+from datetime import datetime as aktime
 from enum import Enum
 
 from sqlalchemy import and_, or_
@@ -18,12 +19,14 @@ from sqlalchemy import and_, or_
 import models
 import pysnowball as ball
 import jfzt
+import akshare as ak
+import pandas as pd
 # from CCI import cci
 from utils import TOKEN
 
 
 # 抓取股票列表
-def fetchStockList(timestamp):
+def fetchStockList():
     lists = ball.stock_list()
     # print(lists)
     return lists
@@ -65,8 +68,8 @@ def saveStockList(data):
 
 
 # 更新股票信息
-def upgradeStockList(timestamp):
-    lists = fetchStockList(timestamp)
+def upgradeStockList():
+    lists = fetchStockList()
     saveStockList(lists)
 
 
@@ -80,6 +83,7 @@ class StockType(Enum):
     CiXinGu = 7
     ZhongXiaoBan = 8
     ChuangCiXinGu = 9
+    Priority = 10
 
 
 # 从数据库里拿出股票列表
@@ -203,6 +207,7 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
                 ~models.StockList.name.like('%退市%'),
             )
         ).all()
+
         if type == StockType.HuShenChuang:
             result = sz + cy + sh + cxg + zxb + cy_cxg
         elif type == StockType.HuShen:
@@ -230,16 +235,16 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
     return result
 
 
-def updateTradeData(result, item):
-    result.volume = item[1]
-    result.open = item[2],  # 开盘价
-    result.high = item[3],  # 最高价
-    result.low = item[4],  # 最低价
-    result.close = item[5],  # 收盘价
-    result.chg = item[6],  # 涨跌幅
-    result.percent = item[7],  # 涨跌幅%
-    result.turn_over_rate = item[8],  # 换手率%
-    result.amount = item[9],  # 成交额
+def updateTradeData(result, row):
+    result.volume = row.成交量,  # 成交量(手)
+    result.open = row.开盘,  # 开盘价
+    result.high = row.最高,  # 最高价
+    result.low = row.最低,  # 最低价
+    result.close = row.收盘,  # 收盘价
+    result.chg = row.涨跌额,  # 涨跌幅
+    result.percent = row.涨跌幅,  # 涨跌幅%
+    result.turn_over_rate = row.换手率,  # 换手率%
+    result.amount = row.成交额,  # 成交额
     return result
 
 
@@ -316,43 +321,47 @@ def saveStockDistribution(stock_id, stock_code, stock_name, distribution_data, p
 
 # 保存行情信息(日)
 def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
-    for item in data_daily:
+    for index, row in data_daily.iterrows():
         try:
+            # timestamp = aktime.strptime(row.日期, "%Y-%m-%d").timestamp()
+            timestamp = int(datetime.datetime.combine(row.日期, datetime.time(0, 0)).timestamp())
+
             result = models.session.query(
                 models.StockTrade
             ).filter(
                 and_(
                     models.StockTrade.sid == stock_id,
-                    models.StockTrade.timestamp == item[0]
+                    models.StockTrade.timestamp == timestamp
                 )
             ).one_or_none()
             if result is not None:
-                updateTradeData(result, item)
+                updateTradeData(result, row)
             else:
+                左收 = row.收盘 - row.涨跌额
                 # 涨停价&跌停价
                 if stock_code[0:1] == '3':
-                    limit_up_price = round((item[5] - item[6]) * 1.2, 2)
-                    limit_down_price = round((item[5] - item[6]) * 0.8, 2)
+                    limit_up_price = round(左收 * 1.2, 2)
+                    limit_down_price = round(左收 * 0.8, 2)
                 else:
-                    limit_up_price = round((item[5] - item[6]) * 1.1, 2)
-                    limit_down_price = round((item[5] - item[6]) * 0.9, 2)
-                    
-                # cci_value = cci(stock_id, item[0], item[3], item[4], item[5])
-                    
+                    limit_up_price = round(左收 * 1.1, 2)
+                    limit_down_price = round(左收 * 0.9, 2)
+            #
+            #     # cci_value = cci(stock_id, item[0], item[3], item[4], item[5])
+            #
                 stock_trade_instance = models.StockTrade(
                     sid=stock_id,  # stock_list的主键
                     code=stock_code,  # 股票代码
                     name=stock_name,  # 股票名称
-                    timestamp=item[0],  # 交易日时间戳
-                    volume=item[1],  # 成交量(手)
-                    open=item[2],  # 开盘价
-                    high=item[3],  # 最高价
-                    low=item[4],  # 最低价
-                    close=item[5],  # 收盘价
-                    chg=item[6],  # 涨跌幅
-                    percent=item[7],  # 涨跌幅%
-                    turn_over_rate=item[8],  # 换手率%
-                    amount=item[9],  # 成交额
+                    timestamp=timestamp,  # 交易日时间戳
+                    volume=row.成交量,  # 成交量(手)
+                    open=row.开盘,  # 开盘价
+                    high=row.最高,  # 最高价
+                    low=row.最低,  # 最低价
+                    close=row.收盘,  # 收盘价
+                    chg=row.涨跌额,  # 涨跌幅
+                    percent=row.涨跌幅,  # 涨跌幅%
+                    turn_over_rate=row.换手率,  # 换手率%
+                    amount=row.成交额,  # 成交额
                     limit_up=limit_up_price,  # 涨停价
                     limit_down=limit_down_price,  # 跌停价
                     cci=0.00,  # cci 指标
@@ -449,19 +458,19 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
 
 
 # 更新股票行情(多线程）
-def upgradeStockTrade(timestamp, period='all'):
+def upgradeStockTrade(start_dt, end_dt, period='all'):
     thread_hu = threading.Thread(target=upgradeStockTradeWithStockType,
-                                 args=(timestamp, period, StockType.Hu,))
+                                 args=(start_dt, end_dt, period, StockType.Hu,))
     thread_shen = threading.Thread(target=upgradeStockTradeWithStockType,
-                                   args=(timestamp, period, StockType.Shen,))
+                                   args=(start_dt, end_dt, period, StockType.Shen,))
     thread_cy = threading.Thread(target=upgradeStockTradeWithStockType,
-                                 args=(timestamp, period, StockType.Chuang,))
+                                 args=(start_dt, end_dt, period, StockType.Chuang,))
     thread_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
-                                  args=(timestamp, period, StockType.CiXinGu,))
+                                  args=(start_dt, end_dt, period, StockType.CiXinGu,))
     thread_zxb = threading.Thread(target=upgradeStockTradeWithStockType,
-                                  args=(timestamp, period, StockType.ZhongXiaoBan,))
+                                  args=(start_dt, end_dt, period, StockType.ZhongXiaoBan,))
     thread_cy_cxg = threading.Thread(target=upgradeStockTradeWithStockType,
-                                     args=(timestamp, period, StockType.ChuangCiXinGu,))
+                                     args=(start_dt, end_dt, period, StockType.ChuangCiXinGu,))
 
     thread_hu.start()
     thread_shen.start()
@@ -481,7 +490,7 @@ def upgradeStockTrade(timestamp, period='all'):
 
 
 # 更新股票行情
-def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType.Hu):
+def upgradeStockTradeWithStockType(start_dt, end_dt, period='all', stock_type=StockType.Hu):
     lists = fetchStockListFromDB(stock_type, False)
     # print(lists)
     length_total = len(lists)
@@ -492,68 +501,93 @@ def upgradeStockTradeWithStockType(timestamp, period='all', stock_type=StockType
             if period == 'daily':
                 # 抓取日行情
                 # print(item[2], item[1])
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                # data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                stock_zh_a_hist_df = ak.stock_zh_a_hist(
+                    symbol=item[2],
+                    period=period,
+                    start_date=start_dt,
+                    end_date=end_dt,
+                    adjust="qfq"
+                )
+                data_daily = pd.DataFrame(stock_zh_a_hist_df)
+                # print(data_daily)
+
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
                 distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
                 # print(distribution_data)
                 saveStockDistribution(item[0], item[2], item[3], distribution_data, period)
-            elif period == 'weekly':
-                # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
-                # 剔除本周数据
-                # data_weekly.pop()
-                # 保存行情信息
-                saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
-            elif period == 'monthly':
-                # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
-                # 剔除本月数据
-                # data_monthly.pop()
-                # 保存行情信息
-                saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
-            elif period == '60d':
-                # 抓取60日行情
-                data_daily = ball.daily(item[1] + item[2], timestamp, -900)['data']['item']
-                saveStockTradeDaily(item[0], item[2], item[3], data_daily)
-                distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
-                # 此处特殊处理，只保留14天数据
-                saveStockDistribution(item[0], item[2], item[3], distribution_data, '14d')
-            elif period == '60w':
-                # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -60)['data']['item']
-                # 剔除本周数据 此处根据使用日期调整
-                # data_weekly.pop()
-                # 保存行情信息
-                saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
-            elif period == '60m':
-                # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -60)['data']['item']
-                # 剔除本月数据 此处根据使用日期调整
-                data_monthly.pop()
-                # 保存行情信息
-                saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
+                # break
+            # elif period == 'weekly':
+            #     # 抓取周行情
+            #     data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['data']['item']
+            #     # 剔除本周数据
+            #     # data_weekly.pop()
+            #     # 保存行情信息
+            #     saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
+            # elif period == 'monthly':
+            #     # 抓取月行情
+            #     data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['data']['item']
+            #     # 剔除本月数据
+            #     # data_monthly.pop()
+            #     # 保存行情信息
+            #     saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
+            # elif period == '60d':
+            #     # 抓取60日行情
+            #     data_daily = ball.daily(item[1] + item[2], timestamp, -900)['item']
+            #     saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+            #     distribution_data = jfzt.fetchDistrubitionData(item[2], item[1])
+            #     # 此处特殊处理，只保留14天数据
+            #     saveStockDistribution(item[0], item[2], item[3], distribution_data, '14d')
+            # elif period == '60w':
+            #     # 抓取周行情
+            #     data_weekly = ball.weekly(item[1] + item[2], timestamp, -60)['data']['item']
+            #     # 剔除本周数据 此处根据使用日期调整
+            #     # data_weekly.pop()
+            #     # 保存行情信息
+            #     saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
+            # elif period == '60m':
+            #     # 抓取月行情
+            #     data_monthly = ball.monthly(item[1] + item[2], timestamp, -60)['data']['item']
+            #     # 剔除本月数据 此处根据使用日期调整
+            #     data_monthly.pop()
+            #     # 保存行情信息
+            #     saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
             else:
-                data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                # data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
+                # saveStockTradeDaily(item[0], item[2], item[3], data_daily)
+                stock_zh_a_hist_df = ak.stock_zh_a_hist(
+                    symbol=item[2],
+                    period=period,
+                    start_date=start_dt,
+                    end_date=end_dt,
+                    adjust="qfq"
+                )
+                data_daily = pd.DataFrame(stock_zh_a_hist_df)
+                # print(data_daily)
+
                 saveStockTradeDaily(item[0], item[2], item[3], data_daily)
-                # 抓取周行情
-                data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['item']
-                # 剔除本周数据
-                # data_weekly.pop()
-                # 保存行情信息
-                saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
-                # 抓取月行情
-                data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['item']
-                # 剔除本月数据
-                # data_monthly.pop()
-                # 保存行情信息
-                saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
+
+
+            #     # 抓取周行情
+            #     data_weekly = ball.weekly(item[1] + item[2], timestamp, -1)['item']
+            #     # 剔除本周数据
+            #     # data_weekly.pop()
+            #     # 保存行情信息
+            #     saveStockTradeWeekly(item[0], item[2], item[3], data_weekly)
+            #     # 抓取月行情
+            #     data_monthly = ball.monthly(item[1] + item[2], timestamp, -1)['item']
+            #     # 剔除本月数据
+            #     # data_monthly.pop()
+            #     # 保存行情信息
+            #     saveStockTradeMonthly(item[0], item[2], item[3], data_monthly)
+            #     # break
         except KeyError as e:
             print("\rthis is a KeyError:", e)
             print(item[0], item[2], item[3])
         except TypeError as e:
             print("\rthis is a TypeError:", e)
             print(item[0], item[2], item[3])
-        time.sleep(0.1)
+        # time.sleep(0.1)
         handle += 1
         percent = handle / length_total
         surplus = round((length_total - handle) * 13, 1)
@@ -757,21 +791,21 @@ def main():
     #     upgradeStockTrade(timestamp, '60w')
     #     upgradeStockTrade(timestamp, '60m')
 
-    thread_hu = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Hu,))
-    thread_shen = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Shen,))
-    thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Chuang,))
-
-    thread_hu.start()
-    thread_shen.start()
-    thread_cy.start()
-    thread_hu.join()
-    thread_shen.join()
-    thread_cy.join()
-    print('执行结束。')
+    # thread_hu = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Hu,))
+    # thread_shen = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Shen,))
+    # thread_cy = threading.Thread(target=upgradeStockTradeWithStockType, args=(timestamp, '60d', StockType.Chuang,))
+    #
+    # # thread_hu.start()
+    # # thread_shen.start()
+    # thread_cy.start()
+    # # thread_hu.join()
+    # # thread_shen.join()
+    # thread_cy.join()
+    # print('执行结束。')
 
 
 # 单独更新数据时使用！
-# main()
+main()
 
 
 #

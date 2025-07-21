@@ -7,7 +7,7 @@ from MultiplierHolding import multiplierHolding
 from NineYin import nineDailyData
 from Amplitude import fetchAmplitude
 from StockToDB import upgradeStockList, upgradeStockTrade
-from utils import currentTime, TOKEN
+from utils import akTime, TOKEN
 
 
 def main():
@@ -19,10 +19,10 @@ def main():
     # print('[5] 获取满足放量的票')
     # print('[6] 获取底部的票')
     ball.set_token(TOKEN)
-    timestamp = currentTime()
-    upgradeStockTrade(timestamp, 'daily')
+    start_dt, end_dt = akTime(0)
+    upgradeStockTrade(start_dt, end_dt, 'daily')
 
-    threadUpgradeStockList = threading.Thread(target=upgradeStockList, args=(timestamp,))
+    threadUpgradeStockList = threading.Thread(target=upgradeStockList, args=())
     threadNineDailyData = threading.Thread(target=nineDailyData, args=())
     threadMultiplier = threading.Thread(target=fetchMultiplier, args=())
     threadMultiplierHolding = threading.Thread(target=multiplierHolding, args=())
