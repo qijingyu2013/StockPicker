@@ -324,7 +324,7 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
     for index, row in data_daily.iterrows():
         try:
             # timestamp = aktime.strptime(row.日期, "%Y-%m-%d").timestamp()
-            timestamp = int(datetime.datetime.combine(row.日期, datetime.time(0, 0)).timestamp())
+            timestamp = int(datetime.datetime.combine(row.日期, datetime.time(0, 0)).timestamp())*1000
 
             result = models.session.query(
                 models.StockTrade
