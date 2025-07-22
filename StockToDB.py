@@ -23,18 +23,25 @@ import akshare as ak
 import pandas as pd
 # from CCI import cci
 from utils import TOKEN
+import random
+from retrying import retry
 
 
 # 抓取股票列表
 def fetchStockList():
-    lists = ball.stock_list()
+    lists =[]
+    for i in range(100):
+        list = ball.stock_list(i, 100)
+        if len(list['data']['list']) > 0:
+            lists.extend(list['data']['list'])
+        else:
+            break
     # print(lists)
     return lists
 
 
 # 保存并且更新股票信息
-def saveStockList(data):
-    lists = data['data']['list']
+def saveStockList(lists):
     for item in lists:
         try:
             handle = models.session.query(
@@ -47,9 +54,29 @@ def saveStockList(data):
             )
             result = handle.one_or_none()
             if result is not None:
-                handle.update({
-                    'name': item['name'],
-                })
+                st='st'
+                退='退'
+                name = item['name'].lower()
+                if st in name:
+                    handle.update({
+                        'name': item['name'],
+                        'status': 1,
+                        'delete': 0,
+                    })
+                    print(f" '{item['name']}' 是 st 股")
+                elif 退 in name:
+                    handle.update({
+                        'name': item['name'],
+                        'status': 2,
+                        'delete': 1,
+                    })
+                    print(f" '{item['name']}' 是 退市股")
+                else:
+                    handle.update({
+                        'name': item['name'],
+                        'status': 0,
+                        'delete': 0,
+                    })
             else:
                 stock_list_instance = models.StockList(
                     name=item['name'],  # 股票名称
@@ -324,7 +351,7 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
     for index, row in data_daily.iterrows():
         try:
             # timestamp = aktime.strptime(row.日期, "%Y-%m-%d").timestamp()
-            timestamp = int(datetime.datetime.combine(row.日期, datetime.time(0, 0)).timestamp())*1000
+            timestamp = int(datetime.datetime.combine(row.日期, datetime.time(0, 0)).timestamp())
 
             result = models.session.query(
                 models.StockTrade
@@ -337,14 +364,14 @@ def saveStockTradeDaily(stock_id, stock_code, stock_name, data_daily):
             if result is not None:
                 updateTradeData(result, row)
             else:
-                左收 = row.收盘 - row.涨跌额
+                昨收 = row.收盘 - row.涨跌额
                 # 涨停价&跌停价
                 if stock_code[0:1] == '3':
-                    limit_up_price = round(左收 * 1.2, 2)
-                    limit_down_price = round(左收 * 0.8, 2)
+                    limit_up_price = round(昨收 * 1.2, 2)
+                    limit_down_price = round(昨收 * 0.8, 2)
                 else:
-                    limit_up_price = round(左收 * 1.1, 2)
-                    limit_down_price = round(左收 * 0.9, 2)
+                    limit_up_price = round(昨收 * 1.1, 2)
+                    limit_down_price = round(昨收 * 0.9, 2)
             #
             #     # cci_value = cci(stock_id, item[0], item[3], item[4], item[5])
             #
@@ -489,6 +516,23 @@ def upgradeStockTrade(start_dt, end_dt, period='all'):
     return
 
 
+
+@retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=5000)
+def safe_get_stock_hist(code, start_date, end_date):
+    try:
+        return ak.stock_zh_a_hist(
+            symbol=code,
+            period="daily",
+            start_date=start_date,
+            end_date=end_date,
+            adjust='qfq'
+        )
+    except Exception as e:
+        print(f"获取数据失败，等待重试... 错误信息: {str(e)}")
+        time.sleep(random.uniform(1, 3))
+
+
+
 # 更新股票行情
 def upgradeStockTradeWithStockType(start_dt, end_dt, period='all', stock_type=StockType.Hu):
     lists = fetchStockListFromDB(stock_type, False)
@@ -502,13 +546,8 @@ def upgradeStockTradeWithStockType(start_dt, end_dt, period='all', stock_type=St
                 # 抓取日行情
                 # print(item[2], item[1])
                 # data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
-                stock_zh_a_hist_df = ak.stock_zh_a_hist(
-                    symbol=item[2],
-                    period=period,
-                    start_date=start_dt,
-                    end_date=end_dt,
-                    adjust="qfq"
-                )
+                stock_zh_a_hist_df = safe_get_stock_hist(item[2], start_dt, end_dt)
+                
                 data_daily = pd.DataFrame(stock_zh_a_hist_df)
                 # print(data_daily)
 
@@ -555,13 +594,14 @@ def upgradeStockTradeWithStockType(start_dt, end_dt, period='all', stock_type=St
             else:
                 # data_daily = ball.daily(item[1] + item[2], timestamp, -1)['item']
                 # saveStockTradeDaily(item[0], item[2], item[3], data_daily)
-                stock_zh_a_hist_df = ak.stock_zh_a_hist(
-                    symbol=item[2],
-                    period=period,
-                    start_date=start_dt,
-                    end_date=end_dt,
-                    adjust="qfq"
-                )
+                # stock_zh_a_hist_df = ak.stock_zh_a_hist(
+                #     symbol=item[2],
+                #     period='daily',
+                #     start_date=start_dt,
+                #     end_date=end_dt,
+                #     adjust=""
+                # )
+                stock_zh_a_hist_df = safe_get_stock_hist(item[2], start_dt, end_dt)
                 data_daily = pd.DataFrame(stock_zh_a_hist_df)
                 # print(data_daily)
 

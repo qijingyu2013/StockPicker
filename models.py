@@ -27,11 +27,11 @@ Base = declarative_base()
 engine = create_engine(
     DB_URI,
     # 超过链接池大小外最多创建的链接
-    max_overflow=0,
+    max_overflow=-1,
     # 链接池大小
     pool_size=5,
     # 链接池中没有可用链接则最多等待的秒数，超过该秒数后报错
-    pool_timeout=10,
+    pool_timeout=100,
     # 多久之后对链接池中的链接进行一次回收
     pool_recycle=1,
     # 查看原生语句（未格式化）
@@ -54,7 +54,7 @@ class StockList(Base):
     name = Column(String(10), index=True, nullable=False, comment="股票名称")
     code = Column(String(8), nullable=True, comment="股票代码")
     flag = Column(String(2), nullable=True, comment="标志位 SZ , SH")
-    status = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ，  其他1")
+    status = Column(DECIMAL(1), default=0, comment="默认0 ， st 1， 退市2")
     delete = Column(DECIMAL(1), default=0, comment="是否删除  默认0 ， 删除1")
     create_time = Column(DateTime, default=datetime.datetime.now, comment="创建时间")
     update_time = Column(DateTime, onupdate=datetime.datetime.now, comment="最后更新时间")
