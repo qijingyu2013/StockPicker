@@ -234,6 +234,30 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
                 ~models.StockList.name.like('%退市%'),
             )
         ).all()
+        # 固定位
+        steady_list = [
+
+        ]
+        # 持仓区
+        trade_list = [
+
+        ]
+        # 观察区
+        observe_list = [
+
+        ]
+        lists = steady_list+observe_list+trade_list
+
+        priority = models.session.query(
+            models.StockList.id,
+            models.StockList.flag,
+            models.StockList.code,
+            models.StockList.name
+        ).filter(
+            and_(
+                models.StockList.code.in_(lists),
+            )
+        ).all()
 
         if type == StockType.HuShenChuang:
             result = sz + cy + sh + cxg + zxb + cy_cxg
@@ -251,6 +275,8 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
             result = zxb
         elif type == StockType.ChuangCiXinGu:
             result = cy_cxg
+        elif type == StockType.Priority:
+            result = priority
         else:
             result = sz + cy + sh + cxg + zxb
 
@@ -486,6 +512,8 @@ def saveStockTradeMonthly(stock_id, stock_code, stock_name, data_monthly):
 
 # 更新股票行情(多线程）
 def upgradeStockTrade(start_dt, end_dt, period='all'):
+    upgradeStockTradeWithStockType(start_dt, end_dt, period, StockType.Priority)
+
     thread_hu = threading.Thread(target=upgradeStockTradeWithStockType,
                                  args=(start_dt, end_dt, period, StockType.Hu,))
     thread_shen = threading.Thread(target=upgradeStockTradeWithStockType,
