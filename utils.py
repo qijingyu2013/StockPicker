@@ -42,7 +42,7 @@ def currentTime():
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
-    return round(timestamp * 1000)
+    return round(timestamp)
 
 def akTime(days):
     # 获取当前时间
@@ -66,8 +66,8 @@ def zeroTime():
     dt = str(today) + ' 00:00:00'
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
-    print(round(timestamp * 1000))
-    return round(timestamp * 1000)
+    print(round(timestamp))
+    return round(timestamp)
 
 
 def customizeTime(offset=9):
@@ -77,7 +77,7 @@ def customizeTime(offset=9):
     timeArray = time.strptime(dt, "%Y-%m-%d %H:%M:%S")
     timestamp = time.mktime(timeArray)
     # print(round(timestamp*1000))
-    return round(timestamp * 1000)
+    return round(timestamp)
 
 
 def printOptimizedForm(lists, limit=0):
