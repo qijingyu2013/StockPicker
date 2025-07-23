@@ -236,15 +236,12 @@ def fetchStockListFromDB(type=StockType.HuShen, st=True):
         ).all()
         # 固定位
         steady_list = [
-
         ]
         # 持仓区
         trade_list = [
-
         ]
         # 观察区
         observe_list = [
-
         ]
         lists = steady_list+observe_list+trade_list
 
@@ -545,7 +542,7 @@ def upgradeStockTrade(start_dt, end_dt, period='all'):
 
 
 
-@retry(stop_max_attempt_number=3, wait_random_min=1000, wait_random_max=5000)
+@retry(stop_max_attempt_number=None, wait_random_min=10000, wait_random_max=50000)
 def safe_get_stock_hist(code, start_date, end_date):
     try:
         return ak.stock_zh_a_hist(
